@@ -67,3 +67,20 @@ next-env.d.ts
 
 # Other generated/debug files
 .nyc_output/
+
+# Backend / Express
+# Ignore backend-specific node modules, build artifacts, envs, logs, and runtime files
+backend/node_modules/
+backend/logs/
+backend/pids/
+backend/*.pid
+backend/npm-debug.log*
+backend/.env
+backend/.env.*
+backend/.env.local
+backend/coverage/
+backend/dist/
+backend/build/
+backend/uploads/
+backend/*.sqlite
+backend/.cache/
