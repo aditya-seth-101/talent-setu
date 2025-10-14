@@ -11,15 +11,16 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc && node ../../scripts/copy-css.js ./src/tokens.css ./dist/tokens.css",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
-  }
-  ,
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   }

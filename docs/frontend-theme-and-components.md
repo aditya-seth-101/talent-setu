@@ -12,6 +12,7 @@ This document outlines the design language, exact theming tokens, component-repo
 - Tooling: TypeScript, React, Storybook, Vitest/Jest, ESLint, Prettier, Playwright/Chromatic for visual/acceptance tests
 
 Contract (small):
+
 - Inputs: design tokens (colors, spacing, type), component props (typed), theming overrides
 - Outputs: accessible React UI components, CSS variables and optional Tailwind plugin
 - Error modes: components must render safe fallbacks for missing props; tokens package should export defaults
@@ -20,8 +21,8 @@ Contract (small):
 
 ## 2) Colors & tokens (suggested)
 
-
 Color palette (hex) — authoritative list:
+
 - --color-black: #000000
 - --color-white: #ffffff
 - --color-surface-dark: #0a0a0a
@@ -33,6 +34,7 @@ Color palette (hex) — authoritative list:
 - --color-overlay-black-08: rgba(0,0,0,0.08)
 
 Usage rules:
+
 - Backgrounds: use black/near-black for main app backgrounds; white/off-white for cards and surfaces when using light mode
 - Text: prefer white on dark surfaces and black on white surfaces; ensure contrast ratio >= 4.5:1 for body text
 - Accents: use Lakers Purple for primary call-to-action outlines, badges and icons; use Lakers Gold for primary CTA fills and highlights
@@ -48,8 +50,8 @@ Example CSS variables (tokens) — copy this file to `packages/ui-tokens/src/tok
   --color-lakers-purple: #552583;
   --color-lakers-gold: #fdb927;
   --color-lakers-gold-alt: #ffc72c;
-  --color-overlay-white-08: rgba(255,255,255,0.08);
-  --color-overlay-black-08: rgba(0,0,0,0.08);
+  --color-overlay-white-08: rgba(255, 255, 255, 0.08);
+  --color-overlay-black-08: rgba(0, 0, 0, 0.08);
 
   --text-primary-dark: var(--color-white);
   --text-primary-light: var(--color-black);
@@ -70,12 +72,12 @@ Example tokens export (TypeScript):
 
 ```ts
 export const color = {
-  black: '#000000',
-  white: '#ffffff',
-  surfaceDark: '#0a0a0a',
-  surfaceLight: '#f5f5f5',
-  lakersPurple: '#552583',
-  lakersGold: '#fdb927',
+  black: "#000000",
+  white: "#ffffff",
+  surfaceDark: "#0a0a0a",
+  surfaceLight: "#f5f5f5",
+  lakersPurple: "#552583",
+  lakersGold: "#fdb927",
 };
 ```
 
@@ -86,15 +88,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        black: '#000000',
-        white: '#ffffff',
-        'lakers-purple': '#552583',
-        'lakers-gold': '#fdb927',
+        black: "#000000",
+        white: "#ffffff",
+        "lakers-purple": "#552583",
+        "lakers-gold": "#fdb927",
       },
-      borderRadius: { sm: '6px', md: '10px', lg: '16px' },
+      borderRadius: { sm: "6px", md: "10px", lg: "16px" },
     },
   },
-}
+};
 ```
 
 Accessibility note: always validate with contrast checks. If using dark backgrounds with purple accents, ensure text and iconography meet AA/AAA where required.
@@ -104,22 +106,26 @@ Accessibility note: always validate with contrast checks. If using dark backgrou
 ## 3) Component design system
 
 Atomic breakdown (suggested):
+
 - Tokens (colors, spacing, type, z-index)
 - Primitives: Button, Icon, Text, Link, Input, Checkbox, Radio, Select
 - Layouts: Grid, Stack, Container
 - Components: Card, Modal, Toast, Tooltip, Avatar, Badge, Table, Dropdown, NavBar
 
 Design rules:
+
 - Components must be theme-aware (consume CSS variables or a ThemeProvider)
 - Prefer composition over inheritance (slot/children props)
 - Keep components small and focused; break large components into smaller parts
 - Each component must include a Storybook story, unit tests and accessibility attributes
 
 Component API contract example (Button):
+
 - Props: { variant: 'primary'|'secondary'|'ghost', size: 'sm'|'md'|'lg', disabled?: boolean, onClick?: ()=>void }
 - Behavior: primary uses Lakers Gold fill on dark surfaces or purple outline on light surfaces; secondary uses purple fill or gold outline depending on context; ghost is transparent
 
 Edge cases to handle:
+
 - Long text / truncation
 - Icon-only buttons with accessible labels
 - Loading states with spinners
@@ -130,6 +136,7 @@ Edge cases to handle:
 ## 4) Shared component repo — options & recommended setup
 
 Option A: Monorepo (recommended)
+
 - Use npm workspaces (recommended) or pnpm workspaces (optional). Root workspace with packages:
   - packages/ui-tokens (exports tokens and CSS vars)
   - packages/ui-components (React components, Storybook)
@@ -138,6 +145,7 @@ Option A: Monorepo (recommended)
 Benefits: single repo for components + apps, versioned together or independently, easier local development, consistent tooling
 
 Option B: Separate repo per package
+
 - Use if you want strict separation or different CI pipelines. More overhead for local linking and cross-repo changes.
 
 Minimal package structure (for `packages/ui-components`):
@@ -151,6 +159,7 @@ Minimal package structure (for `packages/ui-components`):
 - tsconfig.json
 
 Suggested dev dependencies:
+
 - react, react-dom (peerDependencies)
 - typescript
 - storybook
@@ -159,10 +168,12 @@ Suggested dev dependencies:
 - rollup/tsup for bundling
 
 Build & publish:
+
 - Build: compile to ES modules + CJS and include types
 - Publish: Regulate with semantic-release or manual; use Github Packages or internal npm registry
 
 CI example (high-level):
+
 - On PR: run lint, tests, build, storybook build, visual tests
 - On main merge: run publish flow (with semantic-release)
 
@@ -182,12 +193,13 @@ CI example (high-level):
 Consume tokens/components using either the built package or workspace link during development.
 
 Quick steps to integrate (example for a Next.js app):
+
 1. Add package as dependency: `pnpm add @talent-setu/ui-components` (or `npm i` if using npm)
 2. Import CSS variables or ThemeProvider at top-level (e.g., `src/pages/_app.tsx`):
 
 ```tsx
-import '@talent-setu/ui-components/dist/styles.css';
-import { ThemeProvider } from '@talent-setu/ui-components';
+import "@talent-setu/ui-components/dist/styles.css";
+import { ThemeProvider } from "@talent-setu/ui-components";
 
 export default function App({ Component, pageProps }) {
   return (
@@ -201,6 +213,7 @@ export default function App({ Component, pageProps }) {
 3. Replace local styles incrementally: start with header/nav, then buttons, then forms
 
 SSR considerations (Next.js/Remix):
+
 - Prefer CSS variables for immediate paint; ensure tokens CSS is included in server render
 - Avoid client-only ThemeProvider for above-the-fold colors
 
@@ -217,19 +230,23 @@ SSR considerations (Next.js/Remix):
 ## 8) Migration plan (practical incremental path)
 
 Phase 0 — bootstrap:
+
 - Create `packages/ui-tokens` and `packages/ui-components` with initial README and exports
 - Add CSS variable file and TypeScript token export
 - Add a small Button and Text component with stories
 
 Phase 1 — adopt core primitives:
+
 - Replace header/nav in each app with `ui-components` versions
 - Replace global CSS reset with tokens
 
 Phase 2 — broader adoption & polish:
+
 - Replace forms, inputs, cards
 - Add visual tests and confirm look across apps
 
 Phase 3 — maintenance and governance:
+
 - Define contribution guidelines, design-review process, and release cadence
 
 ---

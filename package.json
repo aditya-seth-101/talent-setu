@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "description": "Talent Setu monorepo combining learning, assessment, recruitment, and admin platforms",
   "scripts": {
-  "install:all": "npm install --workspaces --include-workspace-root=false",
-  "build": "echo 'root build placeholder'",
+    "install:all": "npm install --workspaces --include-workspace-root=false",
+    "build": "echo 'root build placeholder'",
     "dev:api": "npm --workspace=@talent-setu/api run dev",
     "dev:ai": "npm --workspace=@talent-setu/ai-service run dev",
     "dev:judge": "npm --workspace=@talent-setu/judge-service run dev",
@@ -45,7 +45,7 @@
   ],
   "devDependencies": {
     "concurrently": "9.2.1",
-  "semantic-release": "^21.0.0",
+    "semantic-release": "^21.0.0",
     "@semantic-release/commit-analyzer": "^10.0.0",
     "@semantic-release/release-notes-generator": "^10.0.0",
     "@semantic-release/npm": "^9.0.0",

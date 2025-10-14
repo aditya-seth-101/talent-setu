@@ -1,9 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const [src, dest] = process.argv.slice(2);
 if (!src || !dest) {
-  console.error('Usage: node copy-css.js <src> <dest>');
+  console.error("Usage: node copy-css.js <src> <dest>");
   process.exit(1);
 }
 
