@@ -13,6 +13,8 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
+  // Keep `_next` referenced to satisfy eslint no-unused-vars when argsIgnorePattern isn't applied
+  void _next;
   logger.error({ err }, "Unhandled error");
 
   if (err instanceof ZodError) {

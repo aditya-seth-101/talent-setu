@@ -32,6 +32,27 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Workspace lint summary
+        run: |
+          rc=0
+          echo "Running API linter..."
+          npx --yes --workspace=@talent-setu/api eslint src --ext .ts --config backend/api/eslint.config.mjs || api_rc=$? && api_rc=${api_rc:-0}
+          echo "API lint exit code: ${api_rc:-0}"
+
+          echo "Running AI service linter..."
+          npx --yes --workspace=@talent-setu/ai-service eslint src --ext .ts --config backend/ai-service/eslint.config.mjs || ai_rc=$? && ai_rc=${ai_rc:-0}
+          echo "AI lint exit code: ${ai_rc:-0}"
+
+          echo "Running Judge service linter..."
+          npx --yes --workspace=@talent-setu/judge-service eslint src --ext .ts --config backend/judge-service/eslint.config.mjs || judge_rc=$? && judge_rc=${judge_rc:-0}
+          echo "Judge lint exit code: ${judge_rc:-0}"
+
+          total_rc=$(( (api_rc:-0) + (ai_rc:-0) + (judge_rc:-0) ))
+          if [ "$total_rc" -ne 0 ]; then
+            echo "One or more lint checks failed (code=$total_rc)"
+            exit $total_rc
+          fi
+
       - name: Lint backend services
         run: |
           npm run lint:api
