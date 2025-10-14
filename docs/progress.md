@@ -6,8 +6,7 @@ _Last updated: 2025-10-14_
 
 - [x] Monorepo structure aligned with build plan
 - [x] Backend services scaffolded (API, AI, Judge)
-- [x] Docker Compose local stack verified
-  - _Verified locally via `docker-compose up -d`; running services: api (4000), ai-service (4100), judge-service (4200), mongo (27017), redis (6379)._
+- [x] Local backend services verified together (api 4000, ai-service 4100, judge-service 4200) with MongoDB (27017) and Redis (6379) running via Homebrew services.
 - [x] CI pipeline skeleton
 - [x] Seed data scripts
 
@@ -20,8 +19,6 @@ _Last updated: 2025-10-14_
 ## Upcoming focus
 
 - [x] Connect Judge service callbacks into API for attempt tracking.
-- [x] Boot Docker Compose stack and validate service health checks.
-  - _Local validation done. Add automated CI health checks to verify on CI/staging._
 - [ ] Seed GitHub Actions secrets required for external integrations (OPENAI*API_KEY, JUDGE0_API_KEY or JUDGE0_BASE_URL, SMTP*\*).
 - [ ] Add CI documentation (`docs/ci.md`) describing required secrets and how to monitor the workflow.
 - [ ] Build recruiter dashboard MVP wiring to API.
@@ -29,8 +26,8 @@ _Last updated: 2025-10-14_
 
 ## Notes
 
-- Ensure `.env` files are created for each service before running Docker Compose.
-- OpenAI key required for AI service responses; local dev uses a mock key in `.env.docker` for the AI service when a real key is not provided. In CI, set `OPENAI_API_KEY` as a repository secret to run integration tests that call the real API.
+- Ensure `.env` files are created for each service before running the local dev scripts.
+- OpenAI key required for AI service responses; for local dev you can use a mock key in `.env` when a real key is not provided. In CI, set `OPENAI_API_KEY` as a repository secret to run integration tests that call the real API.
 - API auth endpoints now store refresh sessions with rotation support; email verification lifecycle implemented (resend + verification).
 - Candidate profiles now exposed via `/api/profiles` (search, self-update, lookup) with MongoDB indexes for recruiter queries.
 - Course outline API now proxies AI generation, persists outlines, and exposes admin review endpoints under `/api/courses/outlines`.
@@ -38,4 +35,4 @@ _Last updated: 2025-10-14_
 - Judge service submissions now persist attempt metadata and accept callbacks via `POST /api/judge/callback`.
 - CI workflow in `.github/workflows/ci.yml` runs lint/build for all services and frontends on every push/PR. Note: CI currently runs lint/build without external API secrets — add the repo secrets above to enable integration tests (OpenAI/Judge0/SMTP) in the workflow.
 
-- Known minor note: `docker-compose.yml` includes the deprecated `version` key which triggers a non-fatal warning; consider removing it to avoid the warning in CI logs.
+- Known minor note: document how to run MongoDB/Redis via Homebrew services for new contributors.

@@ -20,7 +20,7 @@ This service exposes the HTTP API gateway for the Talent Setu platform. It is re
 ## Getting started locally
 
 1. Copy `.env.example` to `.env` and update secrets.
-2. Ensure MongoDB is running (you can use the root `docker-compose.yml`).
+2. Ensure MongoDB is running locally (for example via Homebrew `brew services start mongodb/brew/mongodb-community` or a managed cloud instance).
 3. From the repo root run:
 
 ```bash

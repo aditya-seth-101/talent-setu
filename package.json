@@ -5,15 +5,16 @@
   "description": "Talent Setu monorepo combining learning, assessment, recruitment, and admin platforms",
   "scripts": {
     "install:all": "npm install --workspaces --include-workspace-root=false",
-  "dev:api": "npm --workspace=@talent-setu/api run dev",
-  "dev:ai": "npm --workspace=@talent-setu/ai-service run dev",
-  "dev:judge": "npm --workspace=@talent-setu/judge-service run dev",
-  "build:api": "npm --workspace=@talent-setu/api run build",
-  "build:ai": "npm --workspace=@talent-setu/ai-service run build",
-  "build:judge": "npm --workspace=@talent-setu/judge-service run build",
-  "lint:api": "npm --workspace=@talent-setu/api run lint",
-  "lint:ai": "npm --workspace=@talent-setu/ai-service run lint",
-  "lint:judge": "npm --workspace=@talent-setu/judge-service run lint",
+    "dev:api": "npm --workspace=@talent-setu/api run dev",
+    "dev:ai": "npm --workspace=@talent-setu/ai-service run dev",
+    "dev:judge": "npm --workspace=@talent-setu/judge-service run dev",
+    "dev:all": "npx concurrently -n API,AI,JUDGE -c blue,green,magenta \"PORT=4001 npm run dev:api\" \"PORT=4101 npm run dev:ai\" \"PORT=4201 npm run dev:judge\"",
+    "build:api": "npm --workspace=@talent-setu/api run build",
+    "build:ai": "npm --workspace=@talent-setu/ai-service run build",
+    "build:judge": "npm --workspace=@talent-setu/judge-service run build",
+    "lint:api": "npm --workspace=@talent-setu/api run lint",
+    "lint:ai": "npm --workspace=@talent-setu/ai-service run lint",
+    "lint:judge": "npm --workspace=@talent-setu/judge-service run lint",
     "seed:api": "npm run seed --workspace backend/api"
   },
   "workspaces": [
@@ -25,6 +26,9 @@
     "frontend/learning",
     "frontend/recruitment"
   ],
+  "devDependencies": {
+    "concurrently": "9.2.1"
+  },
   "engines": {
     "node": ">=18.18.0",
     "npm": ">=9.0.0"

@@ -16,13 +16,7 @@ npm run dev:judge      # Judge0 adapter (port 4200)
 npm run seed:api       # Seed base data (requires MongoDB)
 ```
 
-To spin up MongoDB, Redis, and all backend services via Docker Compose:
-
-```bash
-docker compose up --build
-```
-
-Each backend service includes a `.env.docker` file with container-friendly defaults. Copy it to `.env` if you need overrides or secrets specific to your environment.
+Make sure MongoDB (port 27017) and Redis (port 6379) are running locally before starting the services—most contributors install them via Homebrew or run them from a managed instance. The `npm run dev:all` script is handy for launching every backend watcher once your databases are reachable. Docker Compose support has been retired; the stub `docker-compose.yml` file only exists to point folks back to these scripts.
 
 ## Documentation
 

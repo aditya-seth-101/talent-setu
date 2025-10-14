@@ -38,7 +38,7 @@
 - Judge: **Judge0** for compile/run/eval. Map `language_key` to Judge0 `language_id` and run params.
 - Media: YouTube video linking; support oEmbed fetching for thumbnails.
 - Audio: WebRTC + STT (use browser SpeechRecognition or integrate a cloud STT like Whisper/paid API) for voice phase realtime transcript.
-- DevOps: Docker, GitHub Actions (or equivalent) for CI/CD, Docker Compose for local dev; Kubernetes for scale optional.
+- DevOps: GitHub Actions (or equivalent) for CI/CD, local dev via npm scripts with Homebrew-managed MongoDB/Redis; containerization deferred until needed.
 
 - Use npm install for npm libraries dont directly edit package.json files unless needed
 
@@ -260,7 +260,7 @@
 ### Sprint 0 — Project setup (1 week)
 
 - Repo scaffolding (monorepo: `apps/frontend-next`, `apps/admin`, `services/api`, `services/ai`, `infra`)
-- Docker compose dev setup and MongoDB seed scripts
+- Local dev scripts wired up and MongoDB seed scripts
 - Basic CI pipeline skeleton
 
 ### Sprint 1 — Auth & Core models (2 weeks)
@@ -379,5 +379,6 @@ Return only valid JSON.
 3. If you'd like, I can also produce a one-page ERD or a minimal Postman collection next.
 
 ---
-Add a progress doc too 
+
+Add a progress doc too
 _End of build plan._
