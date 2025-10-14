@@ -1,0 +1,32 @@
+{
+  "name": "talent-setu",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Talent Setu monorepo combining learning, assessment, recruitment, and admin platforms",
+  "scripts": {
+    "install:all": "npm install --workspaces --include-workspace-root=false",
+    "dev:api": "npm run dev --workspace backend/api",
+    "dev:ai": "npm run dev --workspace backend/ai-service",
+    "dev:judge": "npm run dev --workspace backend/judge-service",
+    "build:api": "npm run build --workspace backend/api",
+    "build:ai": "npm run build --workspace backend/ai-service",
+    "build:judge": "npm run build --workspace backend/judge-service",
+    "lint:api": "npm run lint --workspace backend/api",
+    "lint:ai": "npm run lint --workspace backend/ai-service",
+    "lint:judge": "npm run lint --workspace backend/judge-service",
+    "seed:api": "npm run seed --workspace backend/api"
+  },
+  "workspaces": [
+    "backend/api",
+    "backend/ai-service",
+    "backend/judge-service",
+    "frontend/admin",
+    "frontend/assessment",
+    "frontend/learning",
+    "frontend/recruitment"
+  ],
+  "engines": {
+    "node": ">=18.18.0",
+    "npm": ">=9.0.0"
+  }
+}

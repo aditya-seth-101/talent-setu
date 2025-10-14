@@ -32,13 +32,15 @@
 
 - Frontend: **Next.js** (for SSR pages)(use modern app router), **Vite** for isolated components / admin micro-frontends if required. TypeScript across.
 - UI: Tailwind + MUI components (user preferred MUI icons). Monaco Editor (web) for code windows.
-- Backend: **Node.js + Express** (TypeScript), microservices-friendly structure.
+- Backend: **Node.js + Express** (TypeScript), microservices-friendly structure .
 - Database: **MongoDB** (primary), Redis (optional caching / session / leaderboards).
 - AI: **OpenAI GPT-5 Thinking mini** endpoints for generation, plus local prompt orchestration (store prompts/templates in DB).
 - Judge: **Judge0** for compile/run/eval. Map `language_key` to Judge0 `language_id` and run params.
 - Media: YouTube video linking; support oEmbed fetching for thumbnails.
 - Audio: WebRTC + STT (use browser SpeechRecognition or integrate a cloud STT like Whisper/paid API) for voice phase realtime transcript.
 - DevOps: Docker, GitHub Actions (or equivalent) for CI/CD, Docker Compose for local dev; Kubernetes for scale optional.
+
+- Use npm install for npm libraries dont directly edit package.json files unless needed
 
 ---
 
@@ -377,5 +379,5 @@ Return only valid JSON.
 3. If you'd like, I can also produce a one-page ERD or a minimal Postman collection next.
 
 ---
-
+Add a progress doc too 
 _End of build plan._
