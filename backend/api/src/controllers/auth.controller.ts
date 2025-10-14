@@ -86,8 +86,20 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function me(req: Request, res: Response) {
-  res.status(200).json({ user: req.user });
+export async function me(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const result = await authService.getCurrentUser(userId);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
 }
 
 function requestContext(req: Request) {

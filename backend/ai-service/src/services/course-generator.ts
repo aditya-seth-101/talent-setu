@@ -13,6 +13,15 @@ const client = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 const CACHE_TTL_MS = env.PROMPT_CACHE_TTL_SECONDS * 1000;
 const MODEL = env.OPENAI_MODEL ?? "gpt-4.1-mini";
 
+type ResponseLike = {
+  output?: Array<{
+    content?: Array<{
+      type?: string;
+      text?: unknown;
+    }>;
+  }>;
+};
+
 type CourseRequest = {
   technology: string;
   level: "beginner" | "intermediate" | "advanced";
@@ -51,7 +60,7 @@ export async function generateCourseOutline({
 
   const systemPrompt = buildCourseOutlinePrompt({ technology, level, seed });
 
-  const response = await (client as any).responses.create({
+  const request = {
     model: MODEL,
     input: [
       {
@@ -67,7 +76,9 @@ export async function generateCourseOutline({
       type: "json_schema",
       json_schema: courseOutlineJsonSchema,
     },
-  });
+  } as Parameters<typeof client.responses.create>[0];
+
+  const response = await client.responses.create(request);
 
   const outputText = extractJsonText(response);
 
@@ -80,10 +91,30 @@ export async function generateCourseOutline({
   return parsed;
 }
 
-function extractJsonText(response: any) {
-  for (const output of response.output ?? []) {
-    for (const item of output.content ?? []) {
-      if (item.type === "output_text" && item.text) {
+function extractJsonText(response: unknown): string {
+  if (!response || typeof response !== "object") {
+    throw new Error("AI service returned unexpected response format");
+  }
+
+  if ("toReadableStream" in response) {
+    throw new Error(
+      "Streaming responses are not supported for course outline generation"
+    );
+  }
+
+  const structured = response as ResponseLike;
+
+  if (!Array.isArray(structured.output)) {
+    throw new Error("AI service returned unexpected response format");
+  }
+
+  for (const output of structured.output) {
+    if (!output || !Array.isArray(output.content)) {
+      continue;
+    }
+
+    for (const item of output.content) {
+      if (item?.type === "output_text" && typeof item.text === "string") {
         return item.text;
       }
     }

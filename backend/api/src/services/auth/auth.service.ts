@@ -1,5 +1,9 @@
 import { ObjectId } from "mongodb";
-import { BadRequestError, UnauthorizedError } from "../../utils/http-errors.js";
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../../utils/http-errors.js";
 import {
   hashPassword,
   verifyPassword,
@@ -28,6 +32,10 @@ import {
   verifyEmail as verifyEmailToken,
 } from "./email-verification.service.js";
 import { logger } from "../../config/logger.js";
+import {
+  ensureDefaultProfileForUser,
+  getProfileForUser,
+} from "../profile/profile.service.js";
 
 interface SignupInput {
   email: string;
@@ -56,6 +64,10 @@ export async function signup(
 
   const passwordHash = await hashPassword(password);
   const user = await createUser({ email, passwordHash, roles });
+  const profile = await ensureDefaultProfileForUser({
+    userId: user._id,
+    email: user.email,
+  });
   const { tokens } = await createSessionWithTokens({
     userId: user._id,
     email: user.email,
@@ -75,6 +87,7 @@ export async function signup(
     user: mapUserToPublic(user),
     tokens,
     emailVerificationSent,
+    profile,
   };
 }
 
@@ -101,10 +114,13 @@ export async function login(
     context,
   });
 
+  const profile = await getProfileForUser(user._id.toHexString());
+
   return {
     user: mapUserToPublic(user),
     tokens,
     emailVerificationRequired: !user.emailVerified,
+    profile,
   };
 }
 
@@ -198,6 +214,21 @@ export async function resendVerification(userId: string) {
   await sendVerificationEmail(user);
 
   return { emailVerificationSent: true };
+}
+
+export async function getCurrentUser(userId: string) {
+  const user = await findUserById(userId);
+
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  const profile = await getProfileForUser(userId);
+
+  return {
+    user: mapUserToPublic(user),
+    profile,
+  };
 }
 
 async function createSessionWithTokens({

@@ -68,4 +68,22 @@ async function ensureIndexes(database: Db) {
   await database
     .collection("judge_attempts")
     .createIndex({ userId: 1, createdAt: -1 });
+  await database
+    .collection("profiles")
+    .createIndex({ userId: 1 }, { unique: true });
+  await database
+    .collection("profiles")
+    .createIndex({ location: 1, experienceYears: -1 });
+  await database
+    .collection("profiles")
+    .createIndex({ technologies: 1 }, { name: "profiles_technologies_idx" });
+  await database
+    .collection("course_outlines")
+    .createIndex({ requestId: 1 }, { unique: true });
+  await database
+    .collection("course_outlines")
+    .createIndex({ technologySlug: 1, createdAt: -1 });
+  await database
+    .collection("course_outlines")
+    .createIndex({ reviewStatus: 1, createdAt: -1 });
 }

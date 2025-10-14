@@ -5,7 +5,6 @@ function buildTransport() {
 
   try {
     // pino-pretty may not be installed in production images; guard against it.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require.resolve("pino-pretty");
     return { target: "pino-pretty" };
   } catch {

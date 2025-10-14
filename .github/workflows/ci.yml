@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - "*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint backend services
+        run: |
+          npm run lint:api
+          npm run lint:ai
+          npm run lint:judge
+
+      - name: Build backend services
+        run: |
+          npm run build:api
+          npm run build:ai
+          npm run build:judge
+
+      - name: Lint frontend apps
+        run: |
+          npm run lint --workspace frontend/admin
+          npm run lint --workspace frontend/assessment
+          npm run lint --workspace frontend/learning
+          npm run lint --workspace frontend/recruitment
+
+      - name: Build frontend apps
+        run: |
+          npm run build --workspace frontend/admin
+          npm run build --workspace frontend/assessment
+          npm run build --workspace frontend/learning
+          npm run build --workspace frontend/recruitment

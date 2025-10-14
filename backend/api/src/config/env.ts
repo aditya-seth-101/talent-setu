@@ -29,6 +29,7 @@ const envSchema = z.object({
   JUDGE_SERVICE_URL: z.string().url().default("http://localhost:4200"),
   API_PUBLIC_URL: z.string().url().default("http://localhost:4000"),
   JUDGE_CALLBACK_SECRET: z.string().min(10).optional(),
+  AI_SERVICE_URL: z.string().url().default("http://localhost:4100"),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),
   SMTP_USERNAME: z.string().optional(),
