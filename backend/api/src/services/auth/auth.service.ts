@@ -36,6 +36,7 @@ import {
   ensureDefaultProfileForUser,
   getProfileForUser,
 } from "../profile/profile.service.js";
+import { validateSelfAssignableRoles } from "../role/role.service.js";
 
 interface SignupInput {
   email: string;
@@ -57,13 +58,19 @@ export async function signup(
   { email, password, roles }: SignupInput,
   context: RequestContext
 ) {
+  const rolesToAssign = await validateSelfAssignableRoles(roles);
+
   const existing = await findUserByEmail(email);
   if (existing) {
     throw new BadRequestError("An account with this email already exists");
   }
 
   const passwordHash = await hashPassword(password);
-  const user = await createUser({ email, passwordHash, roles });
+  const user = await createUser({
+    email,
+    passwordHash,
+    roles: rolesToAssign,
+  });
   const profile = await ensureDefaultProfileForUser({
     userId: user._id,
     email: user.email,

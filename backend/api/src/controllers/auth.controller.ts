@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import * as authService from "../services/auth/auth.service.js";
 import { verifyRefreshToken } from "../services/auth/token.service.js";
+import { listAssignableRoles } from "../services/role/role.service.js";
 
 const roleEnum = z.enum(["student", "recruiter", "admin", "proctor"]);
 
@@ -138,6 +139,19 @@ export async function resendVerification(
 
     const result = await authService.resendVerification(userId);
     res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getAssignableRoles(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const roles = await listAssignableRoles();
+    res.status(200).json({ roles });
   } catch (error) {
     next(error);
   }

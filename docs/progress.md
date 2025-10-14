@@ -12,9 +12,10 @@ _Last updated: 2025-10-14_
 
 ## Sprint 1 (Auth & Core Models)
 
-- [x] Authentication with session rotation and email verification
-- [x] Candidate profiles collection + search/update API endpoints
-- [x] AI-generated course outlines persisted with admin review workflow stubs
+- [x] Authentication service with signup/login/refresh, session rotation, and email verification lifecycle
+- [x] RBAC data seeded (roles + technologies) with guardrails against self-assigning privileged roles
+- [x] Users & profiles stored in MongoDB with self-service profile CRUD endpoints and recruiter search filters
+- [x] Next.js learning shell wired to API (signup/login/logout, session cookies, protected dashboard)
 
 ## Upcoming focus
 

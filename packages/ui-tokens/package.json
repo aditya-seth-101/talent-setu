@@ -1,0 +1,26 @@
+{
+  "name": "@talent-setu/ui-tokens",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Design tokens (colors, spacing, radii) for Talent-Setu UI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aditya-seth-101/talent-setu.git"
+  },
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc && node ../../scripts/copy-css.js ./src/tokens.css ./dist/tokens.css",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+  ,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}

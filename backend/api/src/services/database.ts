@@ -86,4 +86,10 @@ async function ensureIndexes(database: Db) {
   await database
     .collection("course_outlines")
     .createIndex({ reviewStatus: 1, createdAt: -1 });
+  await database
+    .collection("roles")
+    .createIndex({ slug: 1 }, { unique: true, name: "roles_slug_unique" });
+  await database
+    .collection("roles")
+    .createIndex({ assignable: 1, name: 1 }, { name: "roles_assignable_name" });
 }

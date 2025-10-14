@@ -1,0 +1,19 @@
+:root {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-surface-dark: #0a0a0a;
+  --color-surface-light: #f5f5f5;
+  --color-lakers-purple: #552583;
+  --color-lakers-gold: #fdb927;
+
+  --text-primary-dark: var(--color-white);
+  --text-primary-light: var(--color-black);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+}
