@@ -29,6 +29,10 @@ export interface CourseOutlineDocument {
     model?: string;
     cached?: boolean;
   };
+  publishedCourseId?: ObjectId;
+  publishedCourseSlug?: string;
+  publishedBy?: ObjectId;
+  publishedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   generatedAt: Date;
@@ -77,6 +81,10 @@ export type PublicCourseOutline = {
     model?: string;
     cached?: boolean;
   };
+  publishedCourseId?: string;
+  publishedCourseSlug?: string;
+  publishedBy?: string;
+  publishedAt?: string;
   createdAt: string;
   updatedAt: string;
   generatedAt: string;
@@ -107,6 +115,10 @@ export function mapCourseOutlineToPublic(
     reviewedAt: doc.reviewedAt?.toISOString(),
     outline: doc.outline,
     metadata: doc.metadata,
+    publishedCourseId: doc.publishedCourseId?.toHexString(),
+    publishedCourseSlug: doc.publishedCourseSlug,
+    publishedBy: doc.publishedBy?.toHexString(),
+    publishedAt: doc.publishedAt?.toISOString(),
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
     generatedAt: doc.generatedAt.toISOString(),

@@ -155,6 +155,39 @@ export async function updateCourseOutlineReview(
   return updated ?? null;
 }
 
+export async function markCourseOutlinePublished(
+  id: ObjectId,
+  {
+    courseId,
+    courseSlug,
+    publishedAt,
+    publishedBy,
+  }: {
+    courseId: ObjectId;
+    courseSlug: string;
+    publishedAt: Date;
+    publishedBy: ObjectId;
+  }
+): Promise<CourseOutlineDocument | null> {
+  const update: UpdateFilter<CourseOutlineDocument> = {
+    $set: {
+      publishedCourseId: courseId,
+      publishedCourseSlug: courseSlug,
+      publishedAt,
+      publishedBy,
+      updatedAt: new Date(),
+    },
+  };
+
+  const updated = await courseOutlinesCollection().findOneAndUpdate(
+    { _id: id },
+    update,
+    { returnDocument: "after" }
+  );
+
+  return updated ?? null;
+}
+
 function escapeRegex(input: string) {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

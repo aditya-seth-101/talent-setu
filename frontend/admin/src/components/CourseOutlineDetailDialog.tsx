@@ -1,5 +1,8 @@
 import { useMemo } from "react";
-import type { CourseOutlineSummary } from "../types/course-outline";
+import type {
+  CourseOutlineSummary,
+  PublishedCourseDetail,
+} from "../types/course-outline";
 
 export interface CourseOutlineDetailDialogProps {
   outline: CourseOutlineSummary | null;
@@ -7,6 +10,11 @@ export interface CourseOutlineDetailDialogProps {
   isLoading?: boolean;
   error?: string | null;
   onRetry?: () => void;
+  onPublish?: (outlineId: string) => void;
+  isPublishing?: boolean;
+  publishError?: string | null;
+  publishSuccess?: string | null;
+  publishedCourse?: PublishedCourseDetail | null;
 }
 
 export function CourseOutlineDetailDialog({
@@ -15,11 +23,19 @@ export function CourseOutlineDetailDialog({
   isLoading = false,
   error = null,
   onRetry,
+  onPublish,
+  isPublishing = false,
+  publishError = null,
+  publishSuccess = null,
+  publishedCourse = null,
 }: CourseOutlineDetailDialogProps) {
   const dialogId = useMemo(
     () => `outline-detail-${outline?.id ?? "pending"}`,
     [outline?.id]
   );
+
+  const isApproved = outline?.reviewStatus === "approved";
+  const isPublished = Boolean(outline?.publishedCourseId);
 
   if (!outline && !isLoading && !error) {
     return null;
@@ -100,6 +116,18 @@ export function CourseOutlineDetailDialog({
                   <div>
                     <dt>Review notes</dt>
                     <dd>{outline.reviewNotes}</dd>
+                  </div>
+                )}
+                {outline.publishedCourseSlug && (
+                  <div>
+                    <dt>Published course</dt>
+                    <dd>{outline.publishedCourseSlug}</dd>
+                  </div>
+                )}
+                {outline.publishedAt && (
+                  <div>
+                    <dt>Published at</dt>
+                    <dd>{new Date(outline.publishedAt).toLocaleString()}</dd>
                   </div>
                 )}
               </dl>
@@ -210,6 +238,54 @@ export function CourseOutlineDetailDialog({
                 </article>
               ))}
             </section>
+
+            {(publishError ||
+              publishSuccess ||
+              publishedCourse ||
+              (isApproved && !isPublished && onPublish) ||
+              (isPublished && outline.publishedCourseSlug)) && (
+              <section className="dialog-actions">
+                {publishError && (
+                  <p role="alert" className="alert error">
+                    {publishError}
+                  </p>
+                )}
+
+                {publishSuccess && (
+                  <p className="alert success">{publishSuccess}</p>
+                )}
+
+                {publishedCourse && (
+                  <div className="publish-summary">
+                    <p>
+                      Published as <strong>{publishedCourse.title}</strong> (
+                      {publishedCourse.slug})
+                    </p>
+                    <p>
+                      Includes {publishedCourse.topics.length} topics across{" "}
+                      {publishedCourse.levels.length} levels.
+                    </p>
+                  </div>
+                )}
+
+                {isApproved && !isPublished && onPublish && (
+                  <button
+                    type="button"
+                    onClick={() => onPublish(outline.id)}
+                    disabled={isPublishing}
+                  >
+                    {isPublishing ? "Publishing…" : "Publish course"}
+                  </button>
+                )}
+
+                {isPublished && outline.publishedCourseSlug && (
+                  <p className="muted">
+                    Outline linked to{" "}
+                    <strong>{outline.publishedCourseSlug}</strong>
+                  </p>
+                )}
+              </section>
+            )}
           </>
         )}
       </section>

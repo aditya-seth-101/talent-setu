@@ -14,6 +14,7 @@ import {
   type UpdateProfileInput,
 } from "../../models/profile.model.js";
 import { BadRequestError, NotFoundError } from "../../utils/http-errors.js";
+import { createEmptyLearningProgress } from "../../models/learning-progress.model.js";
 
 const availabilityEnum = z.enum(["open", "interviewing", "unavailable"]);
 
@@ -68,7 +69,7 @@ export async function ensureDefaultProfileForUser({
     userId,
     displayName,
     technologies: [],
-    learningProgress: {},
+    learningProgress: createEmptyLearningProgress(),
   });
 
   return mapProfileToPublic(created);

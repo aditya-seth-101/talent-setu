@@ -22,5 +22,6 @@ Make sure MongoDB (port 27017) and Redis (port 6379) are running locally before 
 
 - Build roadmap: `docs/copilot_gpt_5_codex_build_plan.md`
 - Delivery log: `docs/progress.md`
+- Environment & secrets reference: `docs/environment-secrets.md`
 
 Centralized `.gitignore` rules live at the repository root. Historical per-package rules remain under `.gitignore-backups/` if needed.

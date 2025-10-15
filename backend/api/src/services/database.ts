@@ -87,9 +87,48 @@ async function ensureIndexes(database: Db) {
     .collection("course_outlines")
     .createIndex({ reviewStatus: 1, createdAt: -1 });
   await database
+    .collection("technologies")
+    .createIndex(
+      { slug: 1 },
+      { unique: true, name: "technologies_slug_unique" }
+    );
+  await database
+    .collection("technologies")
+    .createIndex(
+      { judge0_language_key: 1 },
+      { unique: true, name: "technologies_language_key_unique" }
+    );
+  await database
     .collection("roles")
     .createIndex({ slug: 1 }, { unique: true, name: "roles_slug_unique" });
   await database
     .collection("roles")
     .createIndex({ assignable: 1, name: 1 }, { name: "roles_assignable_name" });
+  await database
+    .collection("courses")
+    .createIndex({ slug: 1 }, { unique: true, name: "courses_slug_unique" });
+  await database
+    .collection("courses")
+    .createIndex(
+      { status: 1, createdAt: -1 },
+      { name: "courses_status_created" }
+    );
+  await database
+    .collection("topics")
+    .createIndex(
+      { courseId: 1, level: 1, title: 1 },
+      { name: "topics_course_level_title" }
+    );
+  await database
+    .collection("topics")
+    .createIndex(
+      { courseId: 1, slug: 1 },
+      { unique: true, name: "topics_course_slug_unique" }
+    );
+  await database
+    .collection("challenges")
+    .createIndex({ topicId: 1, type: 1 }, { name: "challenges_topic_type" });
+  await database
+    .collection("challenges")
+    .createIndex({ createdAt: 1 }, { name: "challenges_created_at" });
 }

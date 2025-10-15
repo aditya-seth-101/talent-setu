@@ -1,5 +1,6 @@
 import type {
   Collection,
+  Document,
   Filter,
   FilterOperators,
   OptionalUnlessRequiredId,
@@ -12,6 +13,11 @@ import {
   type ProfileDocument,
   type UpdateProfileInput,
 } from "../models/profile.model.js";
+import {
+  createEmptyLearningProgress,
+  mergeLegacyLearningProgress,
+  type LearningProgressState,
+} from "../models/learning-progress.model.js";
 import { getCollection } from "../services/database.js";
 
 function profilesCollection(): Collection<ProfileDocument> {
@@ -31,7 +37,9 @@ export async function createProfile(
     technologies: input.technologies ?? [],
     resumeUrl: input.resumeUrl,
     availability: input.availability,
-    learningProgress: input.learningProgress ?? {},
+    learningProgress: mergeLegacyLearningProgress(
+      input.learningProgress ?? createEmptyLearningProgress()
+    ),
     recruitmentScore: input.recruitmentScore,
     createdAt: now,
     updatedAt: now,
@@ -50,13 +58,31 @@ export async function createProfile(
 export async function findProfileByUserId(
   userId: string | ObjectId
 ): Promise<ProfileDocument | null> {
-  return profilesCollection().findOne({ userId: toObjectId(userId) });
+  const profile = await profilesCollection().findOne({
+    userId: toObjectId(userId),
+  });
+
+  if (profile) {
+    profile.learningProgress = mergeLegacyLearningProgress(
+      profile.learningProgress
+    );
+  }
+
+  return profile;
 }
 
 export async function findProfileById(
   id: string | ObjectId
 ): Promise<ProfileDocument | null> {
-  return profilesCollection().findOne({ _id: toObjectId(id) });
+  const profile = await profilesCollection().findOne({ _id: toObjectId(id) });
+
+  if (profile) {
+    profile.learningProgress = mergeLegacyLearningProgress(
+      profile.learningProgress
+    );
+  }
+
+  return profile;
 }
 
 export async function updateProfileById(
@@ -101,7 +127,15 @@ export async function updateProfileById(
     { returnDocument: "after" }
   );
 
-  return updated ?? null;
+  if (!updated) {
+    return null;
+  }
+
+  updated.learningProgress = mergeLegacyLearningProgress(
+    updated.learningProgress
+  );
+
+  return updated;
 }
 
 export interface ProfileSearchFilters {
@@ -202,4 +236,87 @@ function applyUpdateField(
   }
 
   setTarget[field as string] = value;
+}
+
+type LeaderboardAggregateRow = {
+  _id: ObjectId;
+  userId: ObjectId;
+  displayName: string;
+  netXp: number;
+  baseXp: number;
+  hintPenalty: number;
+  completedTopics: number;
+  learningProgress?: LearningProgressState;
+  updatedAt: Date;
+};
+
+export async function getLearningLeaderboard({
+  technologyId,
+  limit,
+}: {
+  technologyId?: ObjectId;
+  limit: number;
+}): Promise<LeaderboardAggregateRow[]> {
+  const pipeline: Document[] = [
+    {
+      $addFields: {
+        netXp: { $ifNull: ["$learningProgress.totals.netXp", 0] },
+        baseXp: { $ifNull: ["$learningProgress.totals.baseXp", 0] },
+        hintPenalty: {
+          $ifNull: ["$learningProgress.totals.hintPenalty", 0],
+        },
+        completedTopics: {
+          $ifNull: ["$learningProgress.totals.completedTopics", 0],
+        },
+      },
+    },
+    {
+      $match: {
+        netXp: { $gt: 0 },
+      },
+    },
+  ];
+
+  if (technologyId) {
+    pipeline.push({
+      $match: {
+        technologies: technologyId,
+      },
+    });
+  }
+
+  pipeline.push(
+    {
+      $sort: {
+        netXp: -1,
+        hintPenalty: 1,
+        updatedAt: -1,
+      },
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $project: {
+        displayName: 1,
+        userId: 1,
+        netXp: 1,
+        baseXp: 1,
+        hintPenalty: 1,
+        completedTopics: 1,
+        learningProgress: 1,
+        updatedAt: 1,
+      },
+    }
+  );
+
+  const rows = await profilesCollection()
+    .aggregate<LeaderboardAggregateRow>(pipeline)
+    .toArray();
+
+  for (const row of rows) {
+    row.learningProgress = mergeLegacyLearningProgress(row.learningProgress);
+  }
+
+  return rows;
 }

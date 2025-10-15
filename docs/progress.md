@@ -1,6 +1,6 @@
 # Talent Setu — Delivery Progress
 
-_Last updated: 2025-10-14_
+_Last updated: 2025-10-15_
 
 ## Sprint 0 (Project setup)
 
@@ -17,13 +17,48 @@ _Last updated: 2025-10-14_
 - [x] Users & profiles stored in MongoDB with self-service profile CRUD endpoints and recruiter search filters
 - [x] Next.js learning shell wired to API (signup/login/logout, session cookies, protected dashboard)
 
-## Upcoming focus
+## Sprint 2 (Course model + Monaco skeleton)
 
-- [x] Connect Judge service callbacks into API for attempt tracking.
-- [ ] Seed GitHub Actions secrets required for external integrations (OPENAI*API_KEY, JUDGE0_API_KEY or JUDGE0_BASE_URL, SMTP*\*).
+- [x] Courses, topics, and challenges models with repositories/services in the API layer
+- [x] Judge attempt tracking persisted with callback handling from judge-service
+- [x] `/api/judge/submissions` endpoint proxying judge-service and surfacing attempt polling
+- [x] Next.js Monaco wrapper + sample page wired to Judge submission flow (run + poll)
+
+## Sprint 3 (AI course generation + admin UI)
+
+- [x] Persist AI-generated outlines for admin review workflow (promote draft ➜ published)
+- [x] Connect AI service prompt orchestration and schema validation to course creation endpoints
+- [x] Build admin review UI for generated courses (approve, request changes, publish)
+- [x] Document and seed required external secrets (OPENAI_API_KEY, JUDGE0_API_KEY, SMTP creds) across local + CI environments
+
+## Sprint 4 (Learning flows + gating)
+
+- [ ] Learning topic view surfaces gate challenge entry points with progress state awareness
+- [ ] Gate validation service updates `profiles.learningProgress` and enforces unlock rules
+- [ ] Editor hint pipeline connects Judge0 attempt failures to AI hint generation with rate limiting
+- [ ] Learning UI renders hint requests and logs usage penalties
+- [ ] Baseline leaderboard API + UI showing top learners per technology
+
+### Sprint 4 — Recent progress (2025-10-15)
+
+- [x] Fixed backend learning service type and lint issues that blocked builds:
+	- Resolved TypeScript nullability on `profile` in `loadLearningState` to avoid runtime/compile-time null access when updating `profiles.learningProgress`.
+	- Removed several unused variables and tightened signatures in `progress.service.ts` to satisfy ESLint and improve maintainability.
+	- Cleaned up admin controller (`admin.course.controller.ts`) to avoid unsafe `any` casts and removed unused imports.
+- [x] Verified TypeScript build for `backend/api` completes and ESLint reports only style warnings.
+- [ ] Frontend learning app: pending verification
+	- `frontend/learning` requires `pnpm install` locally to run ESLint/build; once installed, run `pnpm run lint` and `pnpm dev` to test the learning flows (courses -> topic workspace -> hint requests -> gate completion).
+	- End-to-end tests for hint generation require the `ai-service` to be running and `OPENAI_API_KEY` configured in `.env` or a local mock.
+
+Next steps:
+- Install frontend deps for `frontend/learning` and run lint/build locally.
+- Start `backend/api` (dev) and `backend/ai-service` (dev) with local env and run through the learning UI to validate hint requests and gate completion update `profiles.learningProgress` and the leaderboard.
+- Add a small unit test for `leaderboard.service.getLeaderboard` and `profile.repository.getLearningLeaderboard` (happy-path + invalid tech id) before committing.
+
+## Backlog
+
 - [ ] Add CI documentation (`docs/ci.md`) describing required secrets and how to monitor the workflow.
 - [ ] Build recruiter dashboard MVP wiring to API.
-- [ ] Persist AI-generated outlines for admin review workflow (admin UI stubs are present; complete review/publish flow).
 
 ## Notes
 
@@ -33,6 +68,9 @@ _Last updated: 2025-10-14_
 - Candidate profiles now exposed via `/api/profiles` (search, self-update, lookup) with MongoDB indexes for recruiter queries.
 - Course outline API now proxies AI generation, persists outlines, and exposes admin review endpoints under `/api/courses/outlines`.
 - AI course outline endpoint now enforces JSON schema, Zod validation, and in-memory caching with optional cache bypass.
+- Approved outlines can now be published into fully-hydrated courses (topics + challenges) with Judge0 language mapping and publication metadata.
+- Admin UI includes publish controls plus status indicators, and references `docs/environment-secrets.md` for required configuration.
+- Run `npm run seed:api` after pulling to ensure technology records store Judge0 language ids used during publication.
 - Judge service submissions now persist attempt metadata and accept callbacks via `POST /api/judge/callback`.
 - CI workflow in `.github/workflows/ci.yml` runs lint/build for all services and frontends on every push/PR. Note: CI currently runs lint/build without external API secrets — add the repo secrets above to enable integration tests (OpenAI/Judge0/SMTP) in the workflow.
 

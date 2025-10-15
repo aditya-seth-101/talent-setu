@@ -5,6 +5,7 @@ import {
   getCourseOutlineById,
   listCourseOutlineRequests,
   updateCourseOutlineReviewStatus,
+  publishCourseOutline as publishCourseOutlineService,
 } from "../services/course/course-outline.service.js";
 
 const idParamSchema = z.object({
@@ -79,6 +80,27 @@ export async function updateCourseOutlineReview(
     });
 
     res.status(200).json({ outline });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function publishCourseOutline(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    const { id } = idParamSchema.parse(req.params);
+    const result = await publishCourseOutlineService(id, { id: user.id });
+
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }

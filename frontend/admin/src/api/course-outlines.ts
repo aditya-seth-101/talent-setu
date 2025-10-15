@@ -4,6 +4,7 @@ import type {
   UpdateCourseOutlineReviewPayload,
   CourseOutlineSummary,
   CourseOutlineDetailResponse,
+  PublishCourseOutlineResponse,
 } from "../types/course-outline";
 
 const DEFAULT_BASE_URL = "http://localhost:3000";
@@ -126,4 +127,18 @@ export async function fetchCourseOutlineById(
 
   const data = await handleResponse<CourseOutlineDetailResponse>(response);
   return data.outline;
+}
+
+export async function publishCourseOutline(
+  id: string
+): Promise<PublishCourseOutlineResponse> {
+  const baseUrl = resolveBaseUrl();
+  const url = `${baseUrl}/api/courses/outlines/${id}/publish`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  return handleResponse<PublishCourseOutlineResponse>(response);
 }

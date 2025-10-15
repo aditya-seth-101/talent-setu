@@ -3,11 +3,13 @@ import {
   fetchCourseOutlines,
   fetchCourseOutlineById,
   updateCourseOutlineStatus,
+  publishCourseOutline,
 } from "../api/course-outlines";
 import type {
   CourseOutlineSummary,
   ListCourseOutlineParams,
   OutlineReviewStatus,
+  PublishCourseOutlineResponse,
 } from "../types/course-outline";
 
 export type StatusFilter = OutlineReviewStatus | "all";
@@ -107,6 +109,14 @@ export function useCourseOutlines({
     []
   );
 
+  async function handlePublish(
+    id: string
+  ): Promise<PublishCourseOutlineResponse> {
+    const result = await publishCourseOutline(id);
+    setRefreshToken((token) => token + 1);
+    return result;
+  }
+
   return {
     outlines,
     totalPages,
@@ -117,5 +127,6 @@ export function useCourseOutlines({
     updateStatus: handleStatusUpdate,
     refresh,
     fetchOutlineById: fetchOutlineByIdFn,
+    publishOutline: handlePublish,
   };
 }

@@ -4,7 +4,10 @@ import {
   useCourseOutlines,
   type StatusFilter,
 } from "./hooks/useCourseOutlines";
-import type { CourseOutlineSummary } from "./types/course-outline";
+import type {
+  CourseOutlineSummary,
+  PublishedCourseDetail,
+} from "./types/course-outline";
 import { CourseOutlineDetailDialog } from "./components/CourseOutlineDetailDialog";
 import "./App.css";
 
@@ -38,6 +41,7 @@ function App() {
     updateStatus,
     refresh,
     fetchOutlineById,
+    publishOutline,
   } = useCourseOutlines({
     status: query.status,
     search: query.search,
@@ -53,6 +57,18 @@ function App() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
   const detailAbortRef = useRef<AbortController | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishSuccess, setPublishSuccess] = useState<string | null>(null);
+  const [publishedCourse, setPublishedCourse] =
+    useState<PublishedCourseDetail | null>(null);
+
+  const resetPublishState = useCallback(() => {
+    setPublishError(null);
+    setPublishSuccess(null);
+    setPublishedCourse(null);
+    setPublishing(false);
+  }, []);
 
   function handleFormChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target;
@@ -118,12 +134,13 @@ function App() {
       setSelectedOutlineId(null);
       setDetailError(null);
       setDetailLoading(false);
+      resetPublishState();
 
       if (!options?.skipUrlUpdate) {
         updateUrlSelection(null, true);
       }
     },
-    [updateUrlSelection]
+    [resetPublishState, updateUrlSelection]
   );
 
   const openOutlineSummary = useCallback(
@@ -137,10 +154,11 @@ function App() {
       setSelectedOutlineId(outline.id);
       setDetailError(null);
       setDetailLoading(false);
+      resetPublishState();
 
       updateUrlSelection(outline.id, options?.replaceUrl ?? false);
     },
-    [updateUrlSelection]
+    [resetPublishState, updateUrlSelection]
   );
 
   const fetchOutlineForId = useCallback(
@@ -159,6 +177,7 @@ function App() {
       setSelectedOutlineId(id);
       setDetailError(null);
       setDetailLoading(true);
+      resetPublishState();
 
       try {
         const outline = await fetchOutlineById(id, controller.signal);
@@ -183,7 +202,7 @@ function App() {
         }
       }
     },
-    [fetchOutlineById, updateUrlSelection]
+    [fetchOutlineById, resetPublishState, updateUrlSelection]
   );
 
   const handleInspectOutline = useCallback(
@@ -300,6 +319,53 @@ function App() {
       replaceUrl: true,
     });
   }, [selectedOutlineId, fetchOutlineForId]);
+
+  const handlePublishOutline = useCallback(
+    async (outlineId: string) => {
+      if (publishing) {
+        return;
+      }
+
+      setPublishing(true);
+      setPublishError(null);
+      setPublishSuccess(null);
+
+      try {
+        const result = await publishOutline(outlineId);
+        const messageBase = `${result.course.title} (${result.course.slug})`;
+        const alreadyPublished = Boolean(
+          selectedOutline?.publishedCourseId || selectedOutline?.publishedAt
+        );
+        if (!selectedOutlineId) {
+          refresh();
+          return;
+        }
+
+        if (selectedOutlineId !== outlineId) {
+          refresh();
+          return;
+        }
+        setSelectedOutline(result.outline);
+        setSelectedOutlineId(result.outline.id);
+        setPublishedCourse(result.course);
+        setPublishSuccess(
+          alreadyPublished
+            ? `Course already published as ${messageBase}`
+            : `Course published as ${messageBase}`
+        );
+        refresh();
+      } catch (publishErr) {
+        const message =
+          publishErr instanceof Error
+            ? publishErr.message
+            : "Failed to publish course";
+        setPublishError(message);
+      } finally {
+        setPublishing(false);
+      }
+    },
+    [publishOutline, publishing, refresh, selectedOutline, selectedOutlineId]
+  );
 
   return (
     <div className="app-shell">
@@ -464,6 +530,11 @@ function App() {
         error={detailError}
         onClose={handleDialogClose}
         onRetry={detailError ? handleDialogRetry : undefined}
+        onPublish={handlePublishOutline}
+        isPublishing={publishing}
+        publishError={publishError}
+        publishSuccess={publishSuccess}
+        publishedCourse={publishedCourse}
       />
     </div>
   );

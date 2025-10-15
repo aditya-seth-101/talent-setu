@@ -416,6 +416,38 @@ button.ghost.small {
   gap: 1.5rem;
 }
 
+.dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dialog-actions button {
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 0.55rem 1.35rem;
+  font-weight: 600;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dialog-actions button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.dialog-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.publish-summary {
+  font-size: 0.95rem;
+  color: rgba(15, 23, 42, 0.7);
+}
+
 .dialog-status {
   border-radius: 16px;
   padding: 1.25rem 1.5rem;

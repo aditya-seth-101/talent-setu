@@ -152,6 +152,18 @@ export function CourseOutlineCard({
               <dd>{outline.requestedByEmail}</dd>
             </div>
           )}
+          {outline.publishedCourseSlug && (
+            <div>
+              <dt>Published</dt>
+              <dd>{outline.publishedCourseSlug}</dd>
+            </div>
+          )}
+          {outline.publishedAt && (
+            <div>
+              <dt>Published At</dt>
+              <dd>{new Date(outline.publishedAt).toLocaleString()}</dd>
+            </div>
+          )}
         </dl>
       </section>
 

@@ -1,4 +1,8 @@
 import type { ObjectId } from "mongodb";
+import {
+  mergeLegacyLearningProgress,
+  type LearningProgressState,
+} from "./learning-progress.model.js";
 
 export type AvailabilityStatus = "open" | "interviewing" | "unavailable";
 
@@ -12,7 +16,7 @@ export interface ProfileDocument {
   technologies: ObjectId[];
   resumeUrl?: string;
   availability?: AvailabilityStatus;
-  learningProgress: Record<string, unknown>;
+  learningProgress: LearningProgressState;
   recruitmentScore?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -27,7 +31,7 @@ export interface CreateProfileInput {
   technologies?: ObjectId[];
   resumeUrl?: string;
   availability?: AvailabilityStatus;
-  learningProgress?: Record<string, unknown>;
+  learningProgress?: LearningProgressState;
   recruitmentScore?: number;
 }
 
@@ -39,7 +43,7 @@ export interface UpdateProfileInput {
   technologies?: ObjectId[] | null;
   resumeUrl?: string | null;
   availability?: AvailabilityStatus | null;
-  learningProgress?: Record<string, unknown> | null;
+  learningProgress?: LearningProgressState | null;
   recruitmentScore?: number | null;
 }
 
@@ -53,7 +57,7 @@ export type PublicProfile = {
   technologies: string[];
   resumeUrl?: string | null;
   availability?: AvailabilityStatus | null;
-  learningProgress: Record<string, unknown>;
+  learningProgress: LearningProgressState;
   recruitmentScore?: number | null;
   createdAt: string;
   updatedAt: string;
@@ -70,7 +74,7 @@ export function mapProfileToPublic(profile: ProfileDocument): PublicProfile {
     technologies: profile.technologies.map((id) => id.toHexString()),
     resumeUrl: profile.resumeUrl ?? null,
     availability: profile.availability ?? null,
-    learningProgress: profile.learningProgress ?? {},
+    learningProgress: mergeLegacyLearningProgress(profile.learningProgress),
     recruitmentScore: profile.recruitmentScore ?? null,
     createdAt: profile.createdAt.toISOString(),
     updatedAt: profile.updatedAt.toISOString(),
