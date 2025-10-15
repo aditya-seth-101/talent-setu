@@ -8,7 +8,6 @@ import {
   type HintUsageState,
   type LearningProgressState,
   type LearningProgressTotals,
-  
   type ProgressStatus,
   type TopicProgressState,
 } from "../../models/learning-progress.model.js";
@@ -142,13 +141,8 @@ export async function getCourseLearningView(
   userId: string,
   courseId: string
 ): Promise<CourseLearningView> {
-  const {
-    course,
-    topics,
-    challengesByTopic,
-    learning,
-    courseProgress,
-  } = await loadLearningState(userId, courseId);
+  const { course, topics, challengesByTopic, learning, courseProgress } =
+    await loadLearningState(userId, courseId);
 
   const publicCourse = mapCourseToSummary(course, topics);
   const topicMap = topicsById(topics);
@@ -203,13 +197,8 @@ export async function getTopicLearningView(
   courseId: string,
   topicId: string
 ): Promise<TopicLearningView> {
-  const {
-    course,
-    topics,
-    challengesByTopic,
-    courseProgress,
-    gating,
-  } = await loadLearningState(userId, courseId);
+  const { course, topics, challengesByTopic, courseProgress, gating } =
+    await loadLearningState(userId, courseId);
 
   const topicDoc = topics.find((topic) =>
     topic._id.equals(new ObjectId(topicId))
@@ -394,8 +383,10 @@ export async function requestHintForChallenge(
     throw new ForbiddenError("Course is not yet available for learning");
   }
 
-  const { profile, learning, courseProgress } =
-    await loadLearningState(userId, course._id.toHexString());
+  const { profile, learning, courseProgress } = await loadLearningState(
+    userId,
+    course._id.toHexString()
+  );
 
   const levelProgress = courseProgress.levels[topic.level];
   if (!levelProgress) {
@@ -495,7 +486,9 @@ async function loadLearningState(
   userId: string,
   courseId: string
 ): Promise<{
-  profile: NonNullable<Awaited<ReturnType<typeof profileRepository.findProfileByUserId>>>;
+  profile: NonNullable<
+    Awaited<ReturnType<typeof profileRepository.findProfileByUserId>>
+  >;
   course: CourseDocument;
   topics: TopicDocument[];
   challengesByTopic: Record<string, ChallengeDocument[]>;

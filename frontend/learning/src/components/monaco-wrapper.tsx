@@ -30,8 +30,8 @@ export function MonacoWrapper({
         if (!mounted) return;
         setLoaded(true);
         // render a simple Monaco editor
-  // @ts-expect-error dynamic import may have different shapes
-  const Editor = monaco.default;
+        // @ts-expect-error dynamic import may have different shapes
+        const Editor = monaco.default;
         // We can't render the component directly here; instead we'll set a flag
         // and let JSX render it.
       } catch (err) {

@@ -42,15 +42,16 @@ _Last updated: 2025-10-15_
 ### Sprint 4 — Recent progress (2025-10-15)
 
 - [x] Fixed backend learning service type and lint issues that blocked builds:
-	- Resolved TypeScript nullability on `profile` in `loadLearningState` to avoid runtime/compile-time null access when updating `profiles.learningProgress`.
-	- Removed several unused variables and tightened signatures in `progress.service.ts` to satisfy ESLint and improve maintainability.
-	- Cleaned up admin controller (`admin.course.controller.ts`) to avoid unsafe `any` casts and removed unused imports.
+  - Resolved TypeScript nullability on `profile` in `loadLearningState` to avoid runtime/compile-time null access when updating `profiles.learningProgress`.
+  - Removed several unused variables and tightened signatures in `progress.service.ts` to satisfy ESLint and improve maintainability.
+  - Cleaned up admin controller (`admin.course.controller.ts`) to avoid unsafe `any` casts and removed unused imports.
 - [x] Verified TypeScript build for `backend/api` completes and ESLint reports only style warnings.
 - [ ] Frontend learning app: pending verification
-	- `frontend/learning` requires `pnpm install` locally to run ESLint/build; once installed, run `pnpm run lint` and `pnpm dev` to test the learning flows (courses -> topic workspace -> hint requests -> gate completion).
-	- End-to-end tests for hint generation require the `ai-service` to be running and `OPENAI_API_KEY` configured in `.env` or a local mock.
+  - `frontend/learning` requires `pnpm install` locally to run ESLint/build; once installed, run `pnpm run lint` and `pnpm dev` to test the learning flows (courses -> topic workspace -> hint requests -> gate completion).
+  - End-to-end tests for hint generation require the `ai-service` to be running and `OPENAI_API_KEY` configured in `.env` or a local mock.
 
 Next steps:
+
 - Install frontend deps for `frontend/learning` and run lint/build locally.
 - Start `backend/api` (dev) and `backend/ai-service` (dev) with local env and run through the learning UI to validate hint requests and gate completion update `profiles.learningProgress` and the leaderboard.
 - Add a small unit test for `leaderboard.service.getLeaderboard` and `profile.repository.getLearningLeaderboard` (happy-path + invalid tech id) before committing.
