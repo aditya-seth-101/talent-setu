@@ -87,3 +87,14 @@ backend/build/
 backend/uploads/
 backend/*.sqlite
 backend/.cache/
+
+# Playwright test artifacts
+test-results/
+**/test-results/
+playwright-report/
+**/playwright-report/
+.playwright/
+**/.playwright/
+**/trace.zip
+**/*.webm
+**/*.zip
