@@ -1,6 +1,6 @@
 # Talent Setu — Delivery Progress
 
-_Last updated: 2025-10-15_
+_Last updated: 2025-10-16_
 
 ## Sprint 0 (Project setup)
 
@@ -50,11 +50,24 @@ _Last updated: 2025-10-15_
   - `frontend/learning` requires `pnpm install` locally to run ESLint/build; once installed, run `pnpm run lint` and `pnpm dev` to test the learning flows (courses -> topic workspace -> hint requests -> gate completion).
   - End-to-end tests for hint generation require the `ai-service` to be running and `OPENAI_API_KEY` configured in `.env` or a local mock.
 
+Recent update (2025-10-16):
+
+- Frontend dependency installation and verification are the highest immediate next steps: run `pnpm install` in `frontend/learning` (or `pnpm install` at repo root if using a workspace manager), then run `pnpm run lint` and `pnpm dev` to validate the learning UI flows.
+- Added a plan to add two quick unit tests in `backend/api/test`: a happy-path test for `leaderboard.service.getLeaderboard` and an invalid-tech-id test for `profile.repository.getLearningLeaderboard` to cover regression and ensure leaderboard queries behave as expected.
+
+Next steps:
+
+- Install frontend deps and run the learning app locally to reproduce and verify gate/hint flows.
+- Implement and run the two unit tests described above; if they fail, iterate to fix the underlying services.
+- After tests pass, re-run CI lint/build and mark Sprint 4 items complete.
+
 Next steps:
 
 - Install frontend deps for `frontend/learning` and run lint/build locally.
 - Start `backend/api` (dev) and `backend/ai-service` (dev) with local env and run through the learning UI to validate hint requests and gate completion update `profiles.learningProgress` and the leaderboard.
 - Add a small unit test for `leaderboard.service.getLeaderboard` and `profile.repository.getLearningLeaderboard` (happy-path + invalid tech id) before committing.
+
+Review note: QA reviewed the backend fixes on 2025-10-15; frontend verification and the two unit tests are the highest priority next actions.
 
 ## Backlog
 

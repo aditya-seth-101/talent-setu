@@ -44,12 +44,13 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@semantic-release/commit-analyzer": "^10.0.0",
+    "@semantic-release/github": "^9.0.0",
+    "@semantic-release/npm": "^9.0.0",
+    "@semantic-release/release-notes-generator": "^10.0.0",
     "concurrently": "9.2.1",
     "semantic-release": "^21.0.0",
-    "@semantic-release/commit-analyzer": "^10.0.0",
-    "@semantic-release/release-notes-generator": "^10.0.0",
-    "@semantic-release/npm": "^9.0.0",
-    "@semantic-release/github": "^9.0.0"
+    "vitest": "^1.0.0"
   },
   "engines": {
     "node": ">=18.18.0",

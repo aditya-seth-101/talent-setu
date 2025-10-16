@@ -1,5 +1,5 @@
 import type { Collection } from "mongodb";
-import { ObjectId } from "mongodb";
+import type { ObjectId } from "mongodb";
 import type { Role } from "../middleware/rbac.js";
 import type { RoleDocument } from "../models/role.model.js";
 import { getCollection } from "../services/database.js";

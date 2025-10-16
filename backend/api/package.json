@@ -5,6 +5,7 @@
   "type": "module",
   "description": "HTTP API gateway for Talent Setu platform (auth, users, courses, assessments)",
   "scripts": {
+    "test": "vitest",
     "dev": "tsx watch src/server.ts",
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/server.js",
@@ -26,16 +27,17 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@tsconfig/node18": "^18.2.4",
     "@types/bcryptjs": "^2.4.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^22.10.1",
     "@types/nodemailer": "^6.4.15",
-    "@tsconfig/node18": "^18.2.4",
     "eslint": "^9.36.0",
+    "tsx": "^4.19.1",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.45.0",
-    "tsx": "^4.19.1"
+    "vitest": "^1.0.0"
   }
 }

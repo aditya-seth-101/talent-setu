@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import type { ObjectId } from "mongodb";
 import { mapChallengeToPublic } from "../../models/challenge.model.js";
 import {
   mapCourseToDetail,
