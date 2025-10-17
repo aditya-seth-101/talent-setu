@@ -50,7 +50,6 @@ Maintainer review: 2025-10-16 — reviewed; added local verification steps and q
 - [x] Candidate dashboard UX for starting assessments and reviewing attempt history
 - [x] Automated regression coverage for assessment services (unit + integration)
 
-
 ## Sprint 6 (Recruitment marketplace)
 
 - [x] Recruiter talent search API with aggregated assessment credibility metrics
@@ -140,7 +139,7 @@ Next steps:
 Changelog (maintainer):
 
 - 2025-10-16: Added maintainer quick checks and smoke-test commands to help contributors verify the learning flow locally. No code changes required.
- - 2025-10-17: Marked Sprint 5 (Assessment builder & execution) items as completed: voice transcription persistence, candidate dashboard UX wiring, and automated regression coverage added for assessment services. Minor proctor UI work remains flagged as pending review.
+- 2025-10-17: Marked Sprint 5 (Assessment builder & execution) items as completed: voice transcription persistence, candidate dashboard UX wiring, and automated regression coverage added for assessment services. Minor proctor UI work remains flagged as pending review.
 
 ## Documents added/updated
 
