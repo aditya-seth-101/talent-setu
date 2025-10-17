@@ -10,6 +10,8 @@ export interface JudgeAttemptDocument {
   _id: ObjectId;
   userId: ObjectId;
   challengeId?: string;
+  assessmentId?: string;
+  assessmentPhaseId?: string;
   languageId: number;
   sourceCode: string;
   stdin?: string;
@@ -25,6 +27,8 @@ export interface JudgeAttemptDocument {
 export interface CreateJudgeAttemptInput {
   userId: ObjectId;
   challengeId?: string;
+  assessmentId?: string;
+  assessmentPhaseId?: string;
   languageId: number;
   sourceCode: string;
   stdin?: string;
@@ -49,6 +53,8 @@ export interface PublicJudgeAttempt {
   sourceCode: string;
   stdin?: string;
   expectedOutput?: string;
+  assessmentId?: string;
+  assessmentPhaseId?: string;
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
@@ -61,6 +67,8 @@ export function mapJudgeAttemptToPublic(
     id: attempt._id.toHexString(),
     userId: attempt.userId.toHexString(),
     challengeId: attempt.challengeId,
+    assessmentId: attempt.assessmentId,
+    assessmentPhaseId: attempt.assessmentPhaseId,
     languageId: attempt.languageId,
     status: attempt.status,
     token: attempt.token,

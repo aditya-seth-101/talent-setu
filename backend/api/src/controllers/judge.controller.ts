@@ -9,6 +9,8 @@ const submissionSchema = z.object({
   stdin: z.string().optional(),
   expectedOutput: z.string().optional(),
   challengeId: z.string().optional(),
+  assessmentId: z.string().length(24).optional(),
+  assessmentPhaseId: z.string().optional(),
 });
 
 const paramsSchema = z.object({
@@ -38,6 +40,8 @@ export async function createSubmission(
     const attempt = await judgeService.submitAttempt({
       userId,
       challengeId: body.challengeId,
+      assessmentId: body.assessmentId,
+      assessmentPhaseId: body.assessmentPhaseId,
       languageId: body.languageId,
       sourceCode: body.sourceCode,
       stdin: body.stdin,

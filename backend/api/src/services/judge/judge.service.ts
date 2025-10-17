@@ -18,6 +18,8 @@ const JUDGE_SUBMISSION_ENDPOINT = `${env.JUDGE_SERVICE_URL.replace(
 type SubmitAttemptInput = {
   userId: string;
   challengeId?: string;
+  assessmentId?: string;
+  assessmentPhaseId?: string;
   languageId: number;
   sourceCode: string;
   stdin?: string;
@@ -40,6 +42,8 @@ export async function submitAttempt(
   const attempt = await judgeAttemptRepository.createAttempt({
     userId: userObjectId,
     challengeId: input.challengeId,
+    assessmentId: input.assessmentId,
+    assessmentPhaseId: input.assessmentPhaseId,
     languageId: input.languageId,
     sourceCode: input.sourceCode,
     stdin: input.stdin,

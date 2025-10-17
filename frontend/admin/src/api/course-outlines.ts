@@ -6,12 +6,7 @@ import type {
   CourseOutlineDetailResponse,
   PublishCourseOutlineResponse,
 } from "../types/course-outline";
-
-const DEFAULT_BASE_URL = "http://localhost:3000";
-
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL as string | undefined
-)?.replace(/\/$/, "");
+import { handleApiResponse, resolveApiBaseUrl } from "./client";
 
 function buildQuery(params: ListCourseOutlineParams): string {
   const url = new URLSearchParams();
@@ -47,36 +42,11 @@ function buildQuery(params: ListCourseOutlineParams): string {
   return url.toString();
 }
 
-function resolveBaseUrl(): string {
-  return API_BASE_URL && API_BASE_URL.length > 0
-    ? API_BASE_URL
-    : DEFAULT_BASE_URL;
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const text = await safeReadText(response);
-    throw new Error(text || `Request failed with status ${response.status}`);
-  }
-
-  const data = (await response.json()) as T;
-  return data;
-}
-
-async function safeReadText(response: Response): Promise<string | undefined> {
-  try {
-    return await response.text();
-  } catch (error) {
-    console.warn("Failed to read response body", error);
-    return undefined;
-  }
-}
-
 export async function fetchCourseOutlines(
   params: ListCourseOutlineParams,
   signal?: AbortSignal
 ): Promise<CourseOutlineListResponse> {
-  const baseUrl = resolveBaseUrl();
+  const baseUrl = resolveApiBaseUrl();
   const query = buildQuery(params);
   const url = `${baseUrl}/api/courses/outlines${query ? `?${query}` : ""}`;
 
@@ -86,14 +56,14 @@ export async function fetchCourseOutlines(
     signal,
   });
 
-  return handleResponse<CourseOutlineListResponse>(response);
+  return handleApiResponse<CourseOutlineListResponse>(response);
 }
 
 export async function updateCourseOutlineStatus(
   id: string,
   payload: UpdateCourseOutlineReviewPayload
 ): Promise<CourseOutlineSummary> {
-  const baseUrl = resolveBaseUrl();
+  const baseUrl = resolveApiBaseUrl();
   const url = `${baseUrl}/api/courses/outlines/${id}/status`;
 
   const response = await fetch(url, {
@@ -105,7 +75,7 @@ export async function updateCourseOutlineStatus(
     body: JSON.stringify(payload),
   });
 
-  const data = await handleResponse<{ outline: CourseOutlineSummary }>(
+  const data = await handleApiResponse<{ outline: CourseOutlineSummary }>(
     response
   );
 
@@ -116,7 +86,7 @@ export async function fetchCourseOutlineById(
   id: string,
   signal?: AbortSignal
 ): Promise<CourseOutlineSummary> {
-  const baseUrl = resolveBaseUrl();
+  const baseUrl = resolveApiBaseUrl();
   const url = `${baseUrl}/api/courses/outlines/${id}`;
 
   const response = await fetch(url, {
@@ -125,14 +95,14 @@ export async function fetchCourseOutlineById(
     signal,
   });
 
-  const data = await handleResponse<CourseOutlineDetailResponse>(response);
+  const data = await handleApiResponse<CourseOutlineDetailResponse>(response);
   return data.outline;
 }
 
 export async function publishCourseOutline(
   id: string
 ): Promise<PublishCourseOutlineResponse> {
-  const baseUrl = resolveBaseUrl();
+  const baseUrl = resolveApiBaseUrl();
   const url = `${baseUrl}/api/courses/outlines/${id}/publish`;
 
   const response = await fetch(url, {
@@ -140,5 +110,5 @@ export async function publishCourseOutline(
     credentials: "include",
   });
 
-  return handleResponse<PublishCourseOutlineResponse>(response);
+  return handleApiResponse<PublishCourseOutlineResponse>(response);
 }

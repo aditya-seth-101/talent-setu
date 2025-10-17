@@ -18,6 +18,8 @@ export async function createAttempt(
   const doc: Omit<JudgeAttemptDocument, "_id"> = {
     userId: input.userId,
     challengeId: input.challengeId,
+    assessmentId: input.assessmentId,
+    assessmentPhaseId: input.assessmentPhaseId,
     languageId: input.languageId,
     sourceCode: input.sourceCode,
     stdin: input.stdin,

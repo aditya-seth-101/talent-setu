@@ -50,3 +50,10 @@ Email verification tokens are single-use and expire after `EMAIL_VERIFICATION_TT
 - `GET /api/judge/submissions/:attemptId` — retrieve attempt status (requires auth)
 
 Judge0 callbacks should be directed to `POST /api/judge/callback` and secured with `JUDGE_CALLBACK_SECRET`. The service forwards responses into the `judge_attempts` collection for progress tracking.
+
+## Technology directory endpoints
+
+- `GET /api/technology` — search the curated technology directory (requires auth)
+- `POST /api/technology/requests` — recruiters request a new technology or alias (roles: recruiter, admin)
+- `GET /api/technology/requests` — admins review the technology request queue (role: admin)
+- `POST /api/technology/requests/:requestId/review` — admins approve or reject a technology request with mapping details (role: admin)

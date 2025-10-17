@@ -77,6 +77,57 @@ async function ensureIndexes(database: Db) {
   await database
     .collection("profiles")
     .createIndex({ technologies: 1 }, { name: "profiles_technologies_idx" });
+  // Recruitment-specific indexes: support sorting/filtering by recruitmentScore and
+  // efficient lookups when filtering by technologies + score.
+  await database
+    .collection("profiles")
+    .createIndex(
+      { recruitmentScore: -1 },
+      { name: "profiles_recruitment_score" }
+    );
+  await database
+    .collection("profiles")
+    .createIndex(
+      { technologies: 1, recruitmentScore: -1 },
+      { name: "profiles_technologies_recruitment_score" }
+    );
+  await database
+    .collection("assessment_templates")
+    .createIndex(
+      { createdBy: 1, status: 1 },
+      { name: "assessment_templates_creator_status" }
+    );
+  await database
+    .collection("assessment_templates")
+    .createIndex(
+      { status: 1, updatedAt: -1 },
+      { name: "assessment_templates_status_updated" }
+    );
+  await database
+    .collection("assessments")
+    .createIndex(
+      { candidateId: 1, status: 1 },
+      { name: "assessments_candidate_status" }
+    );
+  // Support efficient retrieval of most recent assessments for a candidate.
+  await database
+    .collection("assessments")
+    .createIndex(
+      { candidateId: 1, updatedAt: -1 },
+      { name: "assessments_candidate_recent" }
+    );
+  await database
+    .collection("assessments")
+    .createIndex(
+      { recruiterId: 1, status: 1 },
+      { name: "assessments_recruiter_status" }
+    );
+  await database
+    .collection("assessments")
+    .createIndex(
+      { uniqueSeed: 1 },
+      { unique: true, name: "assessments_unique_seed" }
+    );
   await database
     .collection("course_outlines")
     .createIndex({ requestId: 1 }, { unique: true });
@@ -97,6 +148,26 @@ async function ensureIndexes(database: Db) {
     .createIndex(
       { judge0_language_key: 1 },
       { unique: true, name: "technologies_language_key_unique" }
+    );
+  await database.collection("technology_requests").createIndex(
+    { slug: 1 },
+    {
+      unique: true,
+      name: "technology_requests_unique_pending_slug",
+      partialFilterExpression: { status: "pending" },
+    }
+  );
+  await database
+    .collection("technology_requests")
+    .createIndex(
+      { status: 1, createdAt: -1 },
+      { name: "technology_requests_status_created" }
+    );
+  await database
+    .collection("technology_requests")
+    .createIndex(
+      { requestedBy: 1, createdAt: -1 },
+      { name: "technology_requests_requester_created" }
     );
   await database
     .collection("roles")

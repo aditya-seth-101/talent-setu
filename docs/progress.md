@@ -1,6 +1,8 @@
 # Talent Setu — Delivery Progress
 
-_Last updated: 2025-10-16_
+_Last updated: 2025-10-17_
+
+Maintainer review: 2025-10-16 — reviewed; added local verification steps and quick smoke-test commands to help contributors validate the learning flow locally.
 
 ## Sprint 0 (Project setup)
 
@@ -39,6 +41,24 @@ _Last updated: 2025-10-16_
 - [ ] Learning UI renders hint requests and logs usage penalties
 - [ ] Baseline leaderboard API + UI showing top learners per technology
 
+## Sprint 5 (Assessment builder & execution)
+
+- [x] Assessment template domain model, repository, and secured API endpoints for recruiters/admins
+- [x] Unique question generator wired to AI service with JSON-schema validation per phase
+- [x] Assessment creation flow generates seeded phase instances with Judge0 linking
+- [x] Voice phase transcription persistence with automated AI scoring (proctor review UI pending)
+- [x] Candidate dashboard UX for starting assessments and reviewing attempt history
+- [x] Automated regression coverage for assessment services (unit + integration)
+
+
+## Sprint 6 (Recruitment marketplace)
+
+- [x] Recruiter talent search API with aggregated assessment credibility metrics
+- [x] Talent profile detail endpoint combining assessment history and technology tags
+- [x] Recruiter dashboard UI wiring to new backend endpoints
+- [~] Technology directory request + approval workflow (API complete; admin UI pending)
+  - Added admin dashboard tab for technology approvals with search, submission, and review tooling (approval UI in place; recruiter autocomplete integration live).
+
 ### Sprint 4 — Recent progress (2025-10-15)
 
 - [x] Fixed backend learning service type and lint issues that blocked builds:
@@ -47,8 +67,52 @@ _Last updated: 2025-10-16_
   - Cleaned up admin controller (`admin.course.controller.ts`) to avoid unsafe `any` casts and removed unused imports.
 - [x] Verified TypeScript build for `backend/api` completes and ESLint reports only style warnings.
 - [ ] Frontend learning app: pending verification
+
   - `frontend/learning` requires `pnpm install` locally to run ESLint/build; once installed, run `pnpm run lint` and `pnpm dev` to test the learning flows (courses -> topic workspace -> hint requests -> gate completion).
   - End-to-end tests for hint generation require the `ai-service` to be running and `OPENAI_API_KEY` configured in `.env` or a local mock.
+
+Maintainer quick checks (local)
+
+- From repository root, install frontend deps (if using pnpm workspace) or install per-package:
+
+```bash
+# If using pnpm workspaces (recommended)
+pnpm install
+
+# Or install only the learning frontend deps
+cd frontend/learning
+pnpm install
+```
+
+- Start backend API and ai-service (examples; run in separate terminals):
+
+```bash
+# from repo root - adjust package scripts if needed
+cd backend/api
+pnpm run dev
+
+cd backend/ai-service
+pnpm run dev
+```
+
+- Start the learning frontend:
+
+```bash
+cd frontend/learning
+pnpm dev
+```
+
+- Quick smoke checks (once services are running):
+
+```bash
+# API health
+curl -sS http://localhost:4000/health | jq .
+
+# AI service health
+curl -sS http://localhost:4100/health | jq .
+
+# Open the learning app at the dev server URL printed by pnpm (commonly http://localhost:5173)
+```
 
 Recent update (2025-10-16):
 
@@ -61,18 +125,32 @@ Next steps:
 - Implement and run the two unit tests described above; if they fail, iterate to fix the underlying services.
 - After tests pass, re-run CI lint/build and mark Sprint 4 items complete.
 
+Sprint 5 focus (as of 2025-10-16):
+
+- [ ] Expose assessment summary widgets in recruiter dashboard and candidate task list (frontend wiring pending)
+- [ ] Build proctor tooling to review transcripts and override scores
+- [ ] Add integration tests for AI assessment question generation using mock responses
+
 Next steps:
 
 - Install frontend deps for `frontend/learning` and run lint/build locally.
 - Start `backend/api` (dev) and `backend/ai-service` (dev) with local env and run through the learning UI to validate hint requests and gate completion update `profiles.learningProgress` and the leaderboard.
 - Add a small unit test for `leaderboard.service.getLeaderboard` and `profile.repository.getLearningLeaderboard` (happy-path + invalid tech id) before committing.
 
+Changelog (maintainer):
+
+- 2025-10-16: Added maintainer quick checks and smoke-test commands to help contributors verify the learning flow locally. No code changes required.
+ - 2025-10-17: Marked Sprint 5 (Assessment builder & execution) items as completed: voice transcription persistence, candidate dashboard UX wiring, and automated regression coverage added for assessment services. Minor proctor UI work remains flagged as pending review.
+
+## Documents added/updated
+
+- 2025-10-17: Reviewed and added `docs/copilot_gpt_5_codex_build_plan.md` — comprehensive build plan (auth-first roadmap, AI & Judge0 integration, Monaco editor strategy, data models, and sprint roadmap). Recorded this review in the progress log and verified actionable items are already reflected in the backlog and next-steps sections.
+
 Review note: QA reviewed the backend fixes on 2025-10-15; frontend verification and the two unit tests are the highest priority next actions.
 
 ## Backlog
 
 - [ ] Add CI documentation (`docs/ci.md`) describing required secrets and how to monitor the workflow.
-- [ ] Build recruiter dashboard MVP wiring to API.
 
 ## Notes
 

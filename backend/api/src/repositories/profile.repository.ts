@@ -18,6 +18,7 @@ import {
   mergeLegacyLearningProgress,
   type LearningProgressState,
 } from "../models/learning-progress.model.js";
+import type { AssessmentStatus } from "../models/assessment.model.js";
 import { getCollection } from "../services/database.js";
 
 function profilesCollection(): Collection<ProfileDocument> {
@@ -85,6 +86,23 @@ export async function findProfileById(
   return profile;
 }
 
+export async function findProfilesByUserIds(
+  ids: Array<string | ObjectId>
+): Promise<Array<Pick<ProfileDocument, "userId" | "displayName">>> {
+  if (!ids.length) {
+    return [];
+  }
+
+  const objectIds = ids.map((value) => toObjectId(value));
+
+  return profilesCollection()
+    .find(
+      { userId: { $in: objectIds } },
+      { projection: { userId: 1, displayName: 1 } }
+    )
+    .toArray();
+}
+
 export async function updateProfileById(
   id: ObjectId,
   updates: UpdateProfileInput
@@ -148,6 +166,35 @@ export interface ProfileSearchFilters {
   limit: number;
   skip: number;
 }
+
+export type RecruitmentSortOption = "score" | "recent" | "experience";
+
+export interface RecruitmentSearchFilters {
+  technologyIds?: ObjectId[];
+  location?: string;
+  text?: string;
+  minExperience?: number;
+  maxExperience?: number;
+  availability?: AvailabilityStatus[];
+  minRecruitmentScore?: number;
+  maxRecruitmentScore?: number;
+  requireAssessments?: boolean;
+  requireVerified?: boolean;
+  limit: number;
+  skip: number;
+  sortBy: RecruitmentSortOption;
+}
+
+export type RecruitmentProfileAggregate = ProfileDocument & {
+  assessmentSummary: {
+    totalAssessments: number;
+    completedAssessments: number;
+    lastAssessmentAt: Date | null;
+    lastAssessmentId: ObjectId | null;
+    lastAssessmentStatus: AssessmentStatus | null;
+    kioskVerified: boolean;
+  };
+};
 
 export async function searchProfiles({
   technologyIds,
@@ -319,4 +366,225 @@ export async function getLearningLeaderboard({
   }
 
   return rows;
+}
+
+type RecruitmentAggregateFacet = {
+  items: RecruitmentProfileAggregate[];
+  totalCount: Array<{ value: number }>;
+};
+
+export async function searchProfilesForRecruitment({
+  technologyIds,
+  location,
+  text,
+  minExperience,
+  maxExperience,
+  availability,
+  minRecruitmentScore,
+  maxRecruitmentScore,
+  requireAssessments,
+  requireVerified,
+  limit,
+  skip,
+  sortBy,
+}: RecruitmentSearchFilters): Promise<{
+  items: RecruitmentProfileAggregate[];
+  total: number;
+}> {
+  const match: Filter<ProfileDocument> = {};
+
+  if (technologyIds && technologyIds.length > 0) {
+    match.technologies = { $all: technologyIds };
+  }
+
+  if (availability && availability.length > 0) {
+    match.availability = { $in: availability };
+  }
+
+  if (location) {
+    match.location = {
+      $regex: escapeRegex(location),
+      $options: "i",
+    };
+  }
+
+  if (text) {
+    match.$or = [
+      { displayName: { $regex: escapeRegex(text), $options: "i" } },
+      { headline: { $regex: escapeRegex(text), $options: "i" } },
+    ];
+  }
+
+  if (minExperience !== undefined || maxExperience !== undefined) {
+    const experience: FilterOperators<number> = {};
+    if (minExperience !== undefined) {
+      experience.$gte = minExperience;
+    }
+    if (maxExperience !== undefined) {
+      experience.$lte = maxExperience;
+    }
+
+    match.experienceYears = experience;
+  }
+
+  if (minRecruitmentScore !== undefined || maxRecruitmentScore !== undefined) {
+    const recruitment: FilterOperators<number> = {};
+    if (minRecruitmentScore !== undefined) {
+      recruitment.$gte = minRecruitmentScore;
+    }
+    if (maxRecruitmentScore !== undefined) {
+      recruitment.$lte = maxRecruitmentScore;
+    }
+
+    match.recruitmentScore = recruitment;
+  }
+
+  const pipeline: Document[] = [{ $match: match }];
+
+  const emptySummary = {
+    totalAssessments: 0,
+    completedAssessments: 0,
+    lastAssessmentAt: null,
+    lastAssessmentId: null,
+    lastAssessmentStatus: null,
+    kioskVerified: 0,
+  };
+
+  pipeline.push(
+    {
+      $lookup: {
+        from: "assessments",
+        let: { candidateId: "$userId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$candidateId", "$$candidateId"],
+              },
+            },
+          },
+          { $sort: { updatedAt: -1 } },
+          {
+            $group: {
+              _id: null,
+              totalAssessments: { $sum: 1 },
+              completedAssessments: {
+                $sum: {
+                  $cond: [{ $eq: ["$status", "completed"] }, 1, 0],
+                },
+              },
+              lastAssessmentAt: { $first: "$updatedAt" },
+              lastAssessmentId: { $first: "$_id" },
+              lastAssessmentStatus: { $first: "$status" },
+              kioskVerified: {
+                $max: {
+                  $cond: [
+                    {
+                      $and: [{ $eq: ["$status", "completed"] }, "$kioskFlag"],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              totalAssessments: 1,
+              completedAssessments: 1,
+              lastAssessmentAt: 1,
+              lastAssessmentId: 1,
+              lastAssessmentStatus: 1,
+              kioskVerified: 1,
+            },
+          },
+        ],
+        as: "assessmentSummary",
+      },
+    },
+    {
+      $set: {
+        assessmentSummary: {
+          $let: {
+            vars: {
+              summary: {
+                $ifNull: [{ $first: "$assessmentSummary" }, emptySummary],
+              },
+            },
+            in: {
+              totalAssessments: "$$summary.totalAssessments",
+              completedAssessments: "$$summary.completedAssessments",
+              lastAssessmentAt: "$$summary.lastAssessmentAt",
+              lastAssessmentId: "$$summary.lastAssessmentId",
+              lastAssessmentStatus: "$$summary.lastAssessmentStatus",
+              kioskVerified: {
+                $cond: [{ $gt: ["$$summary.kioskVerified", 0] }, true, false],
+              },
+            },
+          },
+        },
+      },
+    }
+  );
+
+  const postMatch: Document = {};
+
+  if (requireAssessments) {
+    postMatch["assessmentSummary.totalAssessments"] = { $gt: 0 };
+  }
+
+  if (requireVerified) {
+    postMatch["assessmentSummary.kioskVerified"] = true;
+  }
+
+  if (Object.keys(postMatch).length > 0) {
+    pipeline.push({ $match: postMatch });
+  }
+
+  pipeline.push({ $sort: buildRecruitmentSort(sortBy) });
+
+  pipeline.push({
+    $facet: {
+      items: [{ $skip: skip }, { $limit: limit }],
+      totalCount: [{ $count: "value" }],
+    },
+  });
+
+  const [result] = await profilesCollection()
+    .aggregate<RecruitmentAggregateFacet>(pipeline)
+    .toArray();
+
+  const items = result?.items ?? [];
+  const total = result?.totalCount?.[0]?.value ?? 0;
+
+  return { items, total };
+}
+
+function buildRecruitmentSort(sortBy: RecruitmentSortOption): Document {
+  switch (sortBy) {
+    case "recent":
+      return {
+        "assessmentSummary.lastAssessmentAt": -1,
+        updatedAt: -1,
+        recruitmentScore: -1,
+        _id: 1,
+      };
+    case "experience":
+      return {
+        experienceYears: -1,
+        recruitmentScore: -1,
+        updatedAt: -1,
+        _id: 1,
+      };
+    case "score":
+    default:
+      return {
+        recruitmentScore: -1,
+        "assessmentSummary.completedAssessments": -1,
+        updatedAt: -1,
+        _id: 1,
+      };
+  }
 }

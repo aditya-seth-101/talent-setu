@@ -43,6 +43,22 @@ export async function findUserById(
   return usersCollection().findOne({ _id: objectId });
 }
 
+export async function findUsersByIds(
+  ids: Array<string | ObjectId>
+): Promise<UserDocument[]> {
+  if (!ids.length) {
+    return [];
+  }
+
+  const objectIds = ids.map((value) =>
+    typeof value === "string" ? new MongoObjectId(value) : value
+  );
+
+  return usersCollection()
+    .find({ _id: { $in: objectIds } })
+    .toArray();
+}
+
 export async function updateUserLoginTimestamp(id: ObjectId): Promise<void> {
   await usersCollection().updateOne(
     { _id: id },
