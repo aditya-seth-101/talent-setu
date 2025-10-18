@@ -9,14 +9,17 @@ This repository is organized as a monorepo. Key setup notes:
 ## Getting started
 
 ```bash
-npm install
-npm run dev:api        # Express API (port 4000)
-npm run dev:ai         # AI orchestration service (port 4100)
-npm run dev:judge      # Judge0 adapter (port 4200)
-npm run seed:api       # Seed base data (requires MongoDB)
+ Developer notes
+ ---------------
+
+ If you run into startup issues on Windows or macOS:
+
+ - The API will try to start an in-memory MongoDB instance automatically when `MONGODB_URI` is unreachable. To disable that behavior set `USE_MEMORY_MONGO=false` in `backend/api/.env` and provide `MONGODB_URI`.
+ - If any frontend complains about missing SWC binaries, run `npm install` at the repo root to ensure optional platform-specific `@next/swc-*` packages are installed.
+ - If ports are already in use, identify and kill the processes using `netstat -ano` and `taskkill /PID <pid> /F` on Windows.
 ```
 
-Make sure MongoDB (port 27017) and Redis (port 6379) are running locally before starting the services—most contributors install them via Homebrew or run them from a managed instance. The `npm run dev:all` script is handy for launching every backend watcher once your databases are reachable. Docker Compose support has been retired; the stub `docker-compose.yml` file only exists to point folks back to these scripts.
+Make sure MongoDB (port 27017) and Redis (port 6379) are running locally before starting the services—install them locally or use a managed/cloud instance. Use the workspace scripts to run local dev servers. For fast iteration run `npm run dev:all` at the repo root (or run individual services with `npm run dev:api`, `npm run dev:admin`, etc.).
 
 ## Documentation
 
