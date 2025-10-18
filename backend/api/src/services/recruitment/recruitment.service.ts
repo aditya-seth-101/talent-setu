@@ -4,6 +4,7 @@ import {
   mapProfileToPublic,
   type PublicProfile,
 } from "../../models/profile.model.js";
+import type { AssessmentPhaseInstance } from "../../models/assessment.model.js";
 import { searchProfilesForRecruitment } from "../../repositories/profile.repository.js";
 import { findTechnologiesByIds } from "../../repositories/technology.repository.js";
 import {
@@ -378,7 +379,7 @@ function computePhaseStats(assessment: AssessmentDocument): {
 } {
   const totalPhases = assessment.phases.length;
   const completedPhases = assessment.phases.filter(
-    (phase) => phase.status === "completed"
+    (phase: AssessmentPhaseInstance) => phase.status === "completed"
   ).length;
 
   let scoreAccumulator = 0;

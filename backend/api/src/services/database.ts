@@ -1,23 +1,40 @@
 import type { Db, Document } from "mongodb";
 import { MongoClient } from "mongodb";
+import type { MongoMemoryServer } from "mongodb-memory-server";
 import { env } from "../config/env.js";
 import { logger } from "../config/logger.js";
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
+let memoryServer: MongoMemoryServer | null = null;
 
 export async function connectMongo() {
   if (client && db) {
     return db;
   }
+  try {
+    client = await connectWithUri(env.MONGODB_URI);
+  } catch (connectionError) {
+    if (!env.USE_MEMORY_MONGO) {
+      logger.error({ err: connectionError }, "Failed to connect to MongoDB");
+      throw connectionError;
+    }
 
-  client = new MongoClient(env.MONGODB_URI);
-  await client.connect();
+    logger.warn(
+      { err: connectionError },
+      "MongoDB unreachable, starting in-memory MongoDB instance"
+    );
+
+    client = await connectWithMemoryServer();
+  }
+
   db = client.db();
 
   await ensureIndexes(db);
 
-  logger.info("Connected to MongoDB");
+  logger.info(
+    memoryServer ? "Connected to in-memory MongoDB" : "Connected to MongoDB"
+  );
   return db;
 }
 
@@ -26,6 +43,11 @@ export async function disconnectMongo() {
   await client.close();
   client = null;
   db = null;
+
+  if (memoryServer) {
+    await memoryServer.stop();
+    memoryServer = null;
+  }
 }
 
 export function getDb(): Db {
@@ -202,4 +224,33 @@ async function ensureIndexes(database: Db) {
   await database
     .collection("challenges")
     .createIndex({ createdAt: 1 }, { name: "challenges_created_at" });
+}
+
+async function connectWithUri(uri: string) {
+  const mongoClient = new MongoClient(uri, {
+    serverSelectionTimeoutMS: env.MONGODB_CONNECT_TIMEOUT_MS,
+  });
+
+  try {
+    await mongoClient.connect();
+    return mongoClient;
+  } catch (error) {
+    await mongoClient.close().catch(() => undefined);
+    throw error;
+  }
+}
+
+async function connectWithMemoryServer() {
+  if (!memoryServer) {
+    const { MongoMemoryServer } = await import("mongodb-memory-server");
+    memoryServer = await MongoMemoryServer.create();
+    logger.info(
+      { uri: memoryServer.getUri() },
+      "Started in-memory MongoDB server"
+    );
+  }
+
+  const mongoClient = new MongoClient(memoryServer.getUri());
+  await mongoClient.connect();
+  return mongoClient;
 }

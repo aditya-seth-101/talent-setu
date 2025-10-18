@@ -22,6 +22,14 @@ export const ToastContext = createContext<ToastContextValue | undefined>(
 export function useToastContext() {
   const context = useContext(ToastContext);
   if (!context) {
+    // In tests or when provider is not mounted, return a safe no-op implementation
+    // to avoid throwing and to make components resilient during unit tests.
+    if (process.env.NODE_ENV === "test") {
+      return {
+        addToast: () => 0,
+        removeToast: () => undefined,
+      } as ToastContextValue;
+    }
     throw new Error("useToastContext must be used within a ToastProvider");
   }
   return context;

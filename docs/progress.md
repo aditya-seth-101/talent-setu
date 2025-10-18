@@ -39,7 +39,7 @@ Maintainer review: 2025-10-16 — reviewed; added local verification steps and q
 - [ ] Gate validation service updates `profiles.learningProgress` and enforces unlock rules
 - [ ] Editor hint pipeline connects Judge0 attempt failures to AI hint generation with rate limiting
 - [ ] Learning UI renders hint requests and logs usage penalties
-- [ ] Baseline leaderboard API + UI showing top learners per technology
+- [x] Baseline leaderboard API + UI showing top learners per technology
 
 ## Sprint 5 (Assessment builder & execution)
 
@@ -69,6 +69,10 @@ Maintainer review: 2025-10-16 — reviewed; added local verification steps and q
 
   - `frontend/learning` requires `pnpm install` locally to run ESLint/build; once installed, run `pnpm run lint` and `pnpm dev` to test the learning flows (courses -> topic workspace -> hint requests -> gate completion).
   - End-to-end tests for hint generation require the `ai-service` to be running and `OPENAI_API_KEY` configured in `.env` or a local mock.
+
+### Sprint 4 — Recent progress (2025-10-17)
+
+- [x] Delivered learner leaderboard page (`/leaderboard`) with technology-aware filtering and current-user highlighting, backed by `/api/learning/leaderboard` and `/api/technology`.
 
 Maintainer quick checks (local)
 
@@ -118,10 +122,14 @@ Recent update (2025-10-16):
 - Frontend dependency installation and verification are the highest immediate next steps: run `pnpm install` in `frontend/learning` (or `pnpm install` at repo root if using a workspace manager), then run `pnpm run lint` and `pnpm dev` to validate the learning UI flows.
 - Added a plan to add two quick unit tests in `backend/api/test`: a happy-path test for `leaderboard.service.getLeaderboard` and an invalid-tech-id test for `profile.repository.getLearningLeaderboard` to cover regression and ensure leaderboard queries behave as expected.
 
+Recent update (2025-10-17):
+
+- Launched `/leaderboard` in the learning app with technology filtering and current-user emphasis; smoke test by seeding XP, then visiting the page to verify ranking and filter behavior.
+- Added focused unit coverage for `getLeaderboard` (technology filters, sort, limit) to guard the new UI.
+
 Next steps:
 
-- Install frontend deps and run the learning app locally to reproduce and verify gate/hint flows.
-- Implement and run the two unit tests described above; if they fail, iterate to fix the underlying services.
+- Install frontend deps and run the learning app locally to reproduce and verify gate/hint flows plus the new leaderboard filter experience.
 - After tests pass, re-run CI lint/build and mark Sprint 4 items complete.
 
 Sprint 5 focus (as of 2025-10-16):
@@ -140,6 +148,7 @@ Changelog (maintainer):
 
 - 2025-10-16: Added maintainer quick checks and smoke-test commands to help contributors verify the learning flow locally. No code changes required.
 - 2025-10-17: Marked Sprint 5 (Assessment builder & execution) items as completed: voice transcription persistence, candidate dashboard UX wiring, and automated regression coverage added for assessment services. Minor proctor UI work remains flagged as pending review.
+- 2025-10-17: Shipped the learner leaderboard view with technology filters in `frontend/learning` and exposed it via the global header.
 
 ## Documents added/updated
 

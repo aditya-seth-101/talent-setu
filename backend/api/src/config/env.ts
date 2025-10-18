@@ -3,6 +3,15 @@ import { z } from "zod";
 
 config({ path: process.env.NODE_ENV === "test" ? ".env.test" : ".env" });
 
+// Provide safe defaults for tests so unit/integration tests can run in CI
+// without requiring the operator to provide long-lived JWT secrets.
+if (process.env.NODE_ENV === "test") {
+  process.env.JWT_ACCESS_SECRET =
+    process.env.JWT_ACCESS_SECRET ?? "test_access_secret_" + "a".repeat(16);
+  process.env.JWT_REFRESH_SECRET =
+    process.env.JWT_REFRESH_SECRET ?? "test_refresh_secret_" + "b".repeat(16);
+}
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -13,6 +22,7 @@ const envSchema = z.object({
     .string()
     .url()
     .default("mongodb://localhost:27017/talent-setu"),
+  MONGODB_CONNECT_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
   JWT_ACCESS_SECRET: z
     .string()
     .min(32, "JWT_ACCESS_SECRET must be at least 32 characters"),
@@ -35,6 +45,10 @@ const envSchema = z.object({
   SMTP_USERNAME: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   EMAIL_FROM: z.string().email().optional(),
+  USE_MEMORY_MONGO: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -43,4 +57,13 @@ if (!parsed.success) {
   throw new Error(`Invalid environment configuration: ${parsed.error.message}`);
 }
 
-export const env = parsed.data;
+type RawEnv = z.infer<typeof envSchema>;
+
+const rawEnv = parsed.data;
+
+export const env: Omit<RawEnv, "USE_MEMORY_MONGO"> & {
+  USE_MEMORY_MONGO: boolean;
+} = {
+  ...rawEnv,
+  USE_MEMORY_MONGO: rawEnv.USE_MEMORY_MONGO ?? rawEnv.NODE_ENV !== "production",
+};

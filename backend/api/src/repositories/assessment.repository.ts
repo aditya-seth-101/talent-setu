@@ -11,6 +11,13 @@ import {
   type CreateAssessmentInput,
   type UpdateAssessmentInput,
 } from "../models/assessment.model.js";
+// Re-export types so other modules can import them from this repository module.
+export type {
+  AssessmentDocument,
+  AssessmentStatus,
+  CreateAssessmentInput,
+  UpdateAssessmentInput,
+} from "../models/assessment.model.js";
 import { getCollection } from "../services/database.js";
 
 function assessmentsCollection(): Collection<AssessmentDocument> {

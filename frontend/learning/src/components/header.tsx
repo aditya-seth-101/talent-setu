@@ -27,6 +27,12 @@ export async function Header() {
               >
                 Dashboard
               </Link>
+              <Link
+                href="/leaderboard"
+                className="text-sm font-medium text-zinc-600 hover:text-indigo-600"
+              >
+                Leaderboard
+              </Link>
               <span className="hidden text-sm text-zinc-500 sm:inline">
                 {session?.profile.displayName}
               </span>
@@ -46,6 +52,12 @@ export async function Header() {
                 className="rounded-md border border-indigo-200 px-3 py-1.5 text-sm font-medium text-indigo-600 transition hover:bg-indigo-50"
               >
                 Sign in
+              </Link>
+              <Link
+                href="/leaderboard"
+                className="text-sm font-medium text-zinc-600 hover:text-indigo-600"
+              >
+                Leaderboard
               </Link>
               <Link
                 href="/signup"

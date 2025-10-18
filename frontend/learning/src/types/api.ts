@@ -224,3 +224,17 @@ export interface LeaderboardResponse {
 export interface ListCoursesResponse {
   courses: PublicCourseSummary[];
 }
+
+export interface TechnologySummary {
+  id: string;
+  name: string;
+  slug: string;
+  aliases: string[];
+  judge0LanguageKey: string;
+  judge0LanguageId: number | null;
+  status: "active" | "deprecated" | "pending";
+}
+
+export interface TechnologySearchResponse {
+  technologies: TechnologySummary[];
+}

@@ -119,7 +119,9 @@ const voiceEvaluationResponseSchema = z
     summary: z.string().optional(),
     recommendation: z.string().optional(),
   })
-  .strict();
+  // Allow passthrough so extra debugging/info fields from AI service
+  // (e.g., prompt, rubric, hints) do not break evaluation parsing.
+  .passthrough();
 
 type RubricEntry = {
   criterion: string;

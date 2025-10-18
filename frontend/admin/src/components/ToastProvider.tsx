@@ -59,22 +59,61 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div className="toast-container" role="status" aria-live="polite">
-        {toasts.map((toast) => (
-          <div key={toast.id} className={`toast toast-${toast.type}`}>
-            <div className="toast-content">
-              <strong>{toast.title}</strong>
-              {toast.description && <p>{toast.description}</p>}
+        {/* DEBUG: log toast items to help tests trace invalid child issues */}
+        {toasts.map((toast) => {
+          // eslint-disable-next-line no-console
+          console.log("ToastProvider rendering toast", {
+            id: toast.id,
+            type: toast.type,
+            titleType: typeof toast.title,
+            descriptionType: typeof toast.description,
+            // If title/description are objects, print shallow preview
+            titlePreview:
+              toast.title && typeof toast.title === "object"
+                ? String(
+                    (toast.title as any)?.toString?.() ??
+                      JSON.stringify(toast.title)
+                  )
+                : toast.title,
+            descriptionPreview:
+              toast.description && typeof toast.description === "object"
+                ? String(
+                    (toast.description as any)?.toString?.() ??
+                      JSON.stringify(toast.description)
+                  )
+                : toast.description,
+          });
+
+          // Defensive coercion: ensure we never pass a React element/object as a text child
+          const safeTitle =
+            toast.title && typeof toast.title === "object"
+              ? String((toast.title as any)?.props ?? toast.title)
+              : String(toast.title);
+
+          const safeDescription =
+            toast.description && typeof toast.description === "object"
+              ? String((toast.description as any)?.props ?? toast.description)
+              : toast.description == null
+              ? undefined
+              : String(toast.description);
+
+          return (
+            <div key={toast.id} className={`toast toast-${toast.type}`}>
+              <div className="toast-content">
+                <strong>{safeTitle}</strong>
+                {safeDescription && <p>{safeDescription}</p>}
+              </div>
+              <button
+                type="button"
+                className="toast-dismiss"
+                onClick={() => removeToast(toast.id)}
+                aria-label="Dismiss notification"
+              >
+                ×
+              </button>
             </div>
-            <button
-              type="button"
-              className="toast-dismiss"
-              onClick={() => removeToast(toast.id)}
-              aria-label="Dismiss notification"
-            >
-              ×
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );
